@@ -561,6 +561,10 @@
   text-transform: uppercase;
 }
 
+#results td.json-cell > div {
+  cursor: zoom-in;
+}
+
 #results td textarea {
   color: var(--fg) !important;
   font-size: 12px;
@@ -647,9 +651,45 @@
   padding: 8px;
   white-space: break-spaces;
   background: var(--bg);
+  color: var(--fg-text);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 13px;
+  line-height: 1.55;
   overflow-y: scroll;
   height: 366px;
   box-sizing: border-box;
+}
+
+#content_modal .content .json-key { color: var(--editor-keyword); }
+#content_modal .content .json-string { color: var(--editor-string); }
+#content_modal .content .json-number { color: var(--editor-constant); }
+#content_modal .content .json-literal { color: var(--editor-variable); }
+#content_modal .content .json-punctuation { color: var(--fg-muted); }
+
+#content_modal .json-format {
+  display: none;
+  float: left;
+  margin-right: 8px;
+}
+
+#content_modal .json-format button {
+  height: 24px;
+  padding: 0 8px;
+  border: 1px solid var(--border-mid);
+  background: var(--bg);
+  color: var(--fg-text);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+#content_modal .json-format button + button {
+  border-left: 0;
+}
+
+#content_modal .json-format button.active {
+  background: var(--selection);
+  border-color: var(--selection);
+  color: var(--accent-fg);
 }
 
 #content_modal .title {

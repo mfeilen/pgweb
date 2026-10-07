@@ -8,6 +8,7 @@ import (
 	"log"
 	"math"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/sosedoff/pgweb/pkg/command"
@@ -43,14 +44,11 @@ type (
 	}
 
 	Result struct {
-		Pagination *Pagination  `json:"pagination,omitempty"`
-		Columns    []string     `json:"columns"`
-		Rows       []Row        `json:"rows"`
-		Stats      *ResultStats `json:"stats,omitempty"`
-
-		// binaryColumns marks the indexes of bytea columns, set from the
-		// driver's column types. nil means the types are unknown.
-		binaryColumns map[int]bool
+		Pagination  *Pagination  `json:"pagination,omitempty"`
+		Columns     []string     `json:"columns"`
+		ColumnTypes []string     `json:"column_types,omitempty"`
+		Rows        []Row        `json:"rows"`
+		Stats       *ResultStats `json:"stats,omitempty"`
 	}
 
 	ResultStats struct {
@@ -78,19 +76,13 @@ type (
 
 // Due to big int number limitations in javascript, numbers should be encoded
 // as strings so they could be properly loaded on the frontend.
-// SetBinaryColumns records which column indexes hold bytea values.
-func (res *Result) SetBinaryColumns(indexes []int) {
-	res.binaryColumns = map[int]bool{}
-	for _, idx := range indexes {
-		res.binaryColumns[idx] = true
-	}
-}
-
+// isBinaryColumn reports whether the value at column idx is bytea. Without
+// column types (results not produced by the driver) the byte heuristic applies.
 func (res *Result) isBinaryColumn(idx int, val string) bool {
-	if res.binaryColumns == nil {
+	if res.ColumnTypes == nil {
 		return hasBinary(val, 8)
 	}
-	return res.binaryColumns[idx]
+	return idx < len(res.ColumnTypes) && strings.EqualFold(res.ColumnTypes[idx], "BYTEA")
 }
 
 func (res *Result) PostProcess() {

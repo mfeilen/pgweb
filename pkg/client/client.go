@@ -555,14 +555,13 @@ func collectResult(rows *sqlx.Rows, queryStart, queryFinish time.Time) (*Result,
 		Rows:    []Row{},
 	}
 
+	// Column types drive bytea encoding (PostProcess) and the JSON cell
+	// viewer in the frontend.
 	if types, err := rows.ColumnTypes(); err == nil {
-		binary := []int{}
+		result.ColumnTypes = make([]string, len(types))
 		for idx, ct := range types {
-			if strings.EqualFold(ct.DatabaseTypeName(), "BYTEA") {
-				binary = append(binary, idx)
-			}
+			result.ColumnTypes[idx] = ct.DatabaseTypeName()
 		}
-		result.SetBinaryColumns(binary)
 	}
 
 	for rows.Next() {
