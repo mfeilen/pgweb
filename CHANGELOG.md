@@ -11,6 +11,12 @@ Current [release](https://github.com/sosedoff/pgweb/releases) is `0.17.0`.
 - `NEW` Sort fully loaded result tables by clicking a column header, GH-871
 - `NEW` Replace the unlicensed securerandom module with github.com/google/uuid, GH-877
 - `FIX` PostgreSQL error messages now include the error position and SQLSTATE code (lib/pq 1.12 behaviour)
+- `NEW` Inline cell editing in the table rows view
+- `NEW` Insert, edit and delete rows from a metadata driven form
+- `NEW` Multi-column filtering with AND conditions and parameterized queries
+- `NEW` Add `GET /api/tables/:table/metadata` endpoint returning column metadata
+- `NEW` Add `POST`, `PUT` and `DELETE /api/tables/:table/rows` endpoints
+- `NEW` Add `--no-row-editing` flag and `PGWEB_NO_ROW_EDITING` environment variable
 - `NEW` Add PGWEB_BOOKMARKS_DIR environment variable to configure bookmarks directory
 
 ## 0.17.0 - 2025-11-22
