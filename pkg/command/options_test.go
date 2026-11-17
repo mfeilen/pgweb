@@ -30,6 +30,40 @@ func TestParseOptions(t *testing.T) {
 		assert.Equal(t, "*", opts.CorsOrigin)
 		assert.Equal(t, "", opts.Passfile)
 		assert.Equal(t, filepath.Join(hdir, ".pgweb/bookmarks"), opts.BookmarksDir)
+		assert.Equal(t, false, opts.DarkMode)
+	})
+
+	t.Run("dark mode flag", func(t *testing.T) {
+		opts, err := ParseOptions([]string{"--dark-mode"})
+		assert.NoError(t, err)
+		assert.True(t, opts.DarkMode)
+	})
+
+	t.Run("dark mode env", func(t *testing.T) {
+		for _, v := range []string{"true", "1", "TRUE"} {
+			t.Setenv("PGWEB_DARK_MODE", v)
+			opts, err := ParseOptions([]string{})
+			assert.NoError(t, err)
+			assert.True(t, opts.DarkMode, v)
+		}
+
+		t.Setenv("PGWEB_DARK_MODE", "false")
+		opts, err := ParseOptions([]string{})
+		assert.NoError(t, err)
+		assert.False(t, opts.DarkMode)
+	})
+
+	t.Run("dark mode env invalid", func(t *testing.T) {
+		t.Setenv("PGWEB_DARK_MODE", "garbage")
+		_, err := ParseOptions([]string{})
+		assert.EqualError(t, err, `invalid PGWEB_DARK_MODE value "garbage": expected true or false`)
+	})
+
+	t.Run("dark mode flag wins", func(t *testing.T) {
+		t.Setenv("PGWEB_DARK_MODE", "false")
+		opts, err := ParseOptions([]string{"--dark-mode"})
+		assert.NoError(t, err)
+		assert.True(t, opts.DarkMode)
 	})
 
 	t.Run("sessions", func(t *testing.T) {

@@ -75,6 +75,24 @@ Or set environment variable:
 PGWEB_SESSIONS=1 pgweb
 ```
 
+### Dark mode
+
+pgweb ships a light and a dark theme. To make dark the default, start the server with:
+
+```
+pgweb --dark-mode
+```
+
+Or set environment variable:
+
+```
+PGWEB_DARK_MODE=true pgweb
+```
+
+Each user can still switch between light and dark with the moon/sun button in
+the top right corner; the browser remembers that choice and it takes precedence
+over the server default.
+
 ## Testing
 
 Before running tests, make sure you have PostgreSQL server running on `localhost:5432`
