@@ -33,6 +33,46 @@ function getSessionId() {
   return id;
 }
 
+// Theme handling. Precedence: the choice stored in this browser, then the
+// server default (features.dark_mode from /api/info), then light.
+function storedTheme() {
+  try {
+    var theme = localStorage.getItem("pgweb_theme");
+    if (theme === "dark" || theme === "light") return theme;
+  } catch (e) {}
+  return null;
+}
+
+function currentTheme() {
+  return document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
+}
+
+function applyTheme(theme) {
+  var dark = theme === "dark";
+
+  document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+
+  $(".theme-toggle").
+    attr("title", dark ? "Switch to light mode" : "Switch to dark mode").
+    find("i").
+    toggleClass("fa-moon-o", !dark).
+    toggleClass("fa-sun-o", dark);
+}
+
+function initTheme() {
+  applyTheme(storedTheme() || (appFeatures.dark_mode ? "dark" : "light"));
+}
+
+function toggleTheme() {
+  var theme = currentTheme() === "dark" ? "light" : "dark";
+
+  try {
+    localStorage.setItem("pgweb_theme", theme);
+  } catch (e) {}
+
+  applyTheme(theme);
+}
+
 function setRowsLimit(num) {
   localStorage.setItem("rows_limit", num);
 }
@@ -1711,6 +1751,11 @@ $(document).ready(function() {
     sortTableRows($(this), sortOrder);
   });
 
+  $(".theme-toggle").on("click", function(e) {
+    e.preventDefault();
+    toggleTheme();
+  });
+
   $("#refresh_tables").on("click", function() {
     loadSchemas();
   });
@@ -1960,6 +2005,7 @@ $(document).ready(function() {
 
     appInfo = resp.app;
     appFeatures = resp.features;
+    initTheme();
 
     getConnection(function(resp) {
       if (resp.error) {

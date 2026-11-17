@@ -7,6 +7,7 @@ Current [release](https://github.com/sosedoff/pgweb/releases) is `0.17.0`.
 - `SECURITY` Disable Multipath TCP (MPTCP) listeners via `godebug multipathtcp=0` to remove the published attack path for Linux kernel CVE-2026-98432
 - `SECURITY` Bump golang.org/x/crypto to 0.59.x (includes the ssh fixes from 0.52.0), GH-867
 - `NEW` Update to Go 1.27 and refresh all Go dependencies (gin 1.12, lib/pq 1.12, go-flags 1.6, sqlx 1.4, prometheus client 1.25, toml 1.6, sshkeys 1.4)
+- `NEW` Dark mode: `--dark-mode` / `PGWEB_DARK_MODE` set the default, a toggle in the UI switches per browser; UI colours moved to CSS custom properties (`static/css/themes.css`) as the base for further themes
 - `NEW` Sort fully loaded result tables by clicking a column header, GH-871
 - `NEW` Replace the unlicensed securerandom module with github.com/google/uuid, GH-877
 - `FIX` PostgreSQL error messages now include the error position and SQLSTATE code (lib/pq 1.12 behaviour)

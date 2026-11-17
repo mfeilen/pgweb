@@ -15,6 +15,7 @@
   --brand:          #79589f;
   --brand-fg:       #fff;
   --brand-fg-muted: #d6cce2;
+  --brand-hover:    rgba(255, 255, 255, 0.15);
   --bg:             #fff;
   --bg-panel:       #f9f9f9;
   --bg-hover:       #f1f1f1;
@@ -63,6 +64,7 @@
   --brand:          #4a3862;
   --brand-fg:       #fff;
   --brand-fg-muted: #c9bcd9;
+  --brand-hover:    rgba(255, 255, 255, 0.1);
   --bg:             #1d1f21;
   --bg-panel:       #25282c;
   --bg-hover:       #2d3035;
