@@ -4,6 +4,12 @@ go 1.25
 
 toolchain go1.25.4
 
+// Disable Multipath TCP (MPTCP) for all sockets. Go 1.24+ enables MPTCP on
+// listeners by default; the published exploit for the Linux kernel
+// use-after-free CVE-2026-98432 requires an MPTCP listener on the target.
+// Guarded by pkg/cli/godebug_test.go.
+godebug multipathtcp=0
+
 require (
 	github.com/BurntSushi/toml v1.1.0
 	github.com/ScaleFT/sshkeys v0.0.0-20200327173127-6142f742bca5

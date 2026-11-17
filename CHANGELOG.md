@@ -4,6 +4,7 @@ Current [release](https://github.com/sosedoff/pgweb/releases) is `0.17.0`.
 
 ## Next
 
+- `SECURITY` Disable Multipath TCP (MPTCP) listeners via `godebug multipathtcp=0` to remove the published attack path for Linux kernel CVE-2026-98432
 - `NEW` Add PGWEB_BOOKMARKS_DIR environment variable to configure bookmarks directory
 
 ## 0.17.0 - 2025-11-22
