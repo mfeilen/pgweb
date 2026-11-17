@@ -67,7 +67,8 @@ type Options struct {
 	MetricsEnabled               bool   `long:"metrics" description:"Enable Prometheus metrics endpoint"`
 	MetricsPath                  string `long:"metrics-path" description:"Path prefix for Prometheus metrics endpoint" default:"/metrics"`
 	MetricsAddr                  string `long:"metrics-addr" description:"Listen host and port for Prometheus metrics server"`
-	DarkMode                     bool   `long:"dark-mode" description:"Enable dark mode by default"`
+	Theme                        string `long:"theme" description:"Default UI theme: auto (follow the operating system), light or dark" default:"auto"`
+	DarkMode                     bool   `long:"dark-mode" description:"Shorthand for --theme dark"`
 }
 
 var Opts Options
@@ -134,15 +135,34 @@ func ParseOptions(args []string) (Options, error) {
 		opts.Sessions = false
 	}
 
-	// The --dark-mode flag wins over the environment variable.
-	if !opts.DarkMode {
-		if val := getPrefixedEnvVar("DARK_MODE"); val != "" {
-			darkMode, err := strconv.ParseBool(val)
-			if err != nil {
-				return opts, fmt.Errorf("invalid PGWEB_DARK_MODE value %q: expected true or false", val)
+	// Theme: flags win over environment variables. --dark-mode is a shorthand
+	// for --theme dark; PGWEB_DARK_MODE accepts true, false or auto.
+	if opts.DarkMode {
+		opts.Theme = "dark"
+	} else if !argsContain(args, "--theme") {
+		if val := getPrefixedEnvVar("THEME"); val != "" {
+			opts.Theme = strings.ToLower(val)
+			if !validTheme(opts.Theme) {
+				return opts, fmt.Errorf("invalid PGWEB_THEME value %q: expected auto, light or dark", val)
 			}
-			opts.DarkMode = darkMode
+		} else if val := getPrefixedEnvVar("DARK_MODE"); val != "" {
+			if strings.EqualFold(val, "auto") {
+				opts.Theme = "auto"
+			} else {
+				darkMode, err := strconv.ParseBool(val)
+				if err != nil {
+					return opts, fmt.Errorf("invalid PGWEB_DARK_MODE value %q: expected true, false or auto", val)
+				}
+				if darkMode {
+					opts.Theme = "dark"
+				} else {
+					opts.Theme = "light"
+				}
+			}
 		}
+	}
+	if !validTheme(opts.Theme) {
+		return opts, fmt.Errorf("invalid theme %q: expected auto, light or dark", opts.Theme)
 	}
 
 	if opts.Sessions || opts.ConnectBackend != "" {
@@ -234,6 +254,22 @@ func getCurrentUser() string {
 	return os.Getenv("USER")
 }
 
+// validTheme reports whether the value is one of the supported UI themes.
+func validTheme(theme string) bool {
+	return theme == "auto" || theme == "light" || theme == "dark"
+}
+
+// argsContain reports whether a flag was given on the command line, either as
+// "--flag value" or "--flag=value".
+func argsContain(args []string, flag string) bool {
+	for _, arg := range args {
+		if arg == flag || strings.HasPrefix(arg, flag+"=") {
+			return true
+		}
+	}
+	return false
+}
+
 // getPrefixedEnvVar returns env var with prefix, or falls back to unprefixed one
 func getPrefixedEnvVar(name string) string {
 	val := os.Getenv(envVarPrefix + name)
@@ -259,6 +295,7 @@ func AvailableEnvVars() string {
 		"  " + envVarPrefix + "AUTH_USER     HTTP basic auth username",
 		"  " + envVarPrefix + "AUTH_PASS     HTTP basic auth password",
 		"  " + envVarPrefix + "BOOKMARKS_DIR Overrides default directory for bookmark files",
-		"  " + envVarPrefix + "DARK_MODE     Enable dark mode by default (true or false)",
+		"  " + envVarPrefix + "THEME         Default UI theme: auto, light or dark",
+		"  " + envVarPrefix + "DARK_MODE     Shorthand: true = dark, false = light, auto = auto",
 	}, "\n")
 }

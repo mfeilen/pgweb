@@ -49,44 +49,62 @@ function getSessionId() {
   return id;
 }
 
-// Theme handling. Precedence: the choice stored in this browser, then the
-// server default (features.dark_mode from /api/info), then light.
+// Theme handling. A choice is "auto", "dark" or "light". Precedence: the
+// choice stored in this browser, then the server default (features.theme from
+// /api/info), then "auto". "auto" follows the operating system setting and
+// updates live when that setting changes.
+var themeChoices = ["auto", "dark", "light"];
+var themeMedia   = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+
 function storedTheme() {
-  try {
-    var theme = storageGet("localStorage", "pgweb_theme");
-    if (theme === "dark" || theme === "light") return theme;
-  } catch (e) {}
-  return null;
+  var choice = storageGet("localStorage", "pgweb_theme");
+  return themeChoices.indexOf(choice) >= 0 ? choice : null;
 }
 
-function currentTheme() {
-  return document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
+function currentThemeChoice() {
+  var choice = document.documentElement.getAttribute("data-theme-choice");
+  return themeChoices.indexOf(choice) >= 0 ? choice : "auto";
 }
 
-function applyTheme(theme) {
-  var dark = theme === "dark";
+// Resolves a choice to the theme actually rendered
+function resolveTheme(choice) {
+  if (choice === "dark" || choice === "light") return choice;
+  return themeMedia && themeMedia.matches ? "dark" : "light";
+}
 
-  document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+function applyTheme(choice) {
+  var titles = {
+    auto:  "Theme: auto, follows the system setting. Click for dark",
+    dark:  "Theme: dark. Click for light",
+    light: "Theme: light. Click for auto"
+  };
+  var icons = { auto: "fa-adjust", dark: "fa-moon-o", light: "fa-sun-o" };
+
+  document.documentElement.setAttribute("data-theme-choice", choice);
+  document.documentElement.setAttribute("data-theme", resolveTheme(choice));
 
   $(".theme-toggle").
-    attr("title", dark ? "Switch to light mode" : "Switch to dark mode").
+    attr("title", titles[choice]).
     find("i").
-    toggleClass("fa-moon-o", !dark).
-    toggleClass("fa-sun-o", dark);
+    attr("class", "fa " + icons[choice]);
 }
 
 function initTheme() {
-  applyTheme(storedTheme() || (appFeatures.dark_mode ? "dark" : "light"));
+  var serverDefault = themeChoices.indexOf(appFeatures.theme) >= 0 ? appFeatures.theme : "auto";
+  applyTheme(storedTheme() || serverDefault);
 }
 
 function toggleTheme() {
-  var theme = currentTheme() === "dark" ? "light" : "dark";
+  var next = themeChoices[(themeChoices.indexOf(currentThemeChoice()) + 1) % themeChoices.length];
 
-  try {
-    storageSet("localStorage", "pgweb_theme", theme);
-  } catch (e) {}
+  storageSet("localStorage", "pgweb_theme", next);
+  applyTheme(next);
+}
 
-  applyTheme(theme);
+if (themeMedia && themeMedia.addEventListener) {
+  themeMedia.addEventListener("change", function() {
+    if (currentThemeChoice() === "auto") applyTheme("auto");
+  });
 }
 
 function setRowsLimit(num) {
@@ -1650,9 +1668,9 @@ function bindContentModalEvents() {
 }
 
 $(document).ready(function() {
-  // Sync the toggle icons with the theme the head script already applied;
+  // Sync the toggle icons with the choice the head script already applied;
   // initTheme() adds the server default once /api/info has answered.
-  applyTheme(currentTheme());
+  applyTheme(currentThemeChoice());
 
   bindInputResizeEvents();
   bindContentModalEvents();

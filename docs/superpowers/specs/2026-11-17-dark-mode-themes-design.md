@@ -26,8 +26,12 @@ override stylesheet.
 
 ## Non-goals
 
-- Following the operating system setting (`prefers-color-scheme`). Can be
-  added later as a third value `auto`.
+- ~~Following the operating system setting (`prefers-color-scheme`).~~ Added
+  the same day as the third value `auto`, which is now the default: choice
+  `auto` resolves via `prefers-color-scheme` and follows live changes; the
+  toggle cycles auto, dark, light; server option `--theme` / `PGWEB_THEME`
+  with `--dark-mode` / `PGWEB_DARK_MODE` as shorthands; `/api/info` reports
+  `features.theme`.
 - A theme picker for more than two themes. The toggle switches light/dark
   only; a picker comes with the themes.
 - Shipping any of the Prism-derived themes in this change.
