@@ -28,17 +28,13 @@ Very easy to use and packs just the right amount of features.
 - Table and query data export to CSV/JSON/XML.
 - Query history.
 - Server bookmarks.
-
-Visit [WIKI](https://github.com/sosedoff/pgweb/wiki) for more details.
-
-## Demo
-
-Visit https://pgweb-demo.fly.dev/ to see Pgweb in action.
+- Light and dark theme.
 
 ## Installation
 
-- [Precompiled binaries](https://github.com/sosedoff/pgweb/releases) for supported operating systems are available.
-- [More installation options](https://github.com/sosedoff/pgweb/wiki/Installation)
+See [docs/installation.md](docs/installation.md) for the Docker image
+(`ghcr.io/mfeilen/pgweb`), docker compose, container hosts and building from
+source.
 
 ## Usage
 
@@ -119,8 +115,7 @@ make test-all
 - Commit your changes
 - Execute test suite
 - Push your code and open a new pull request
-- Use [issues](https://github.com/sosedoff/pgweb/issues) for any questions
-- Check [wiki](https://github.com/sosedoff/pgweb/wiki) for extra documentation
+- Use [issues](https://github.com/mfeilen/pgweb/issues) for any questions
 
 ## License
 
