@@ -1,6 +1,6 @@
-# pgweb-plus v1.0 — row editing and multi-column filtering
+# Row editing and multi-column filtering
 
-Migration notes and performance assessment for the three v1.0 features:
+Migration notes and performance assessment for the three features:
 inline cell editing, insert/edit/delete rows, and multi-column filtering.
 
 ## Migration notes
@@ -61,7 +61,7 @@ a JSON array of `{"column": ..., "op": ..., "value": ...}` objects.
 - `bytea` columns are not editable as text.
 - Generated and non-updatable columns are read-only.
 - Only `AND` is supported between filters. `OR` groups and nested conditions
-  are out of scope for v1.0.
+  are out of scope for now.
 - Inline editing treats an empty input as `NULL` on nullable columns. Use the
   row editor to store an empty string.
 
