@@ -22,12 +22,28 @@ var filterOptions = {
   "not_null":   "IS NOT NULL"
 };
 
+// Browser storage can be unavailable (private mode, blocked site data).
+// Reads then return null and writes are dropped, instead of breaking the page.
+function storageGet(store, key) {
+  try {
+    return window[store].getItem(key);
+  } catch (e) {
+    return null;
+  }
+}
+
+function storageSet(store, key, value) {
+  try {
+    window[store].setItem(key, value);
+  } catch (e) {}
+}
+
 function getSessionId() {
-  var id = sessionStorage.getItem("session_id");
+  var id = storageGet("sessionStorage", "session_id");
 
   if (!id) {
     id = guid();
-    sessionStorage.setItem("session_id", id);
+    storageSet("sessionStorage", "session_id", id);
   }
 
   return id;
@@ -37,7 +53,7 @@ function getSessionId() {
 // server default (features.dark_mode from /api/info), then light.
 function storedTheme() {
   try {
-    var theme = localStorage.getItem("pgweb_theme");
+    var theme = storageGet("localStorage", "pgweb_theme");
     if (theme === "dark" || theme === "light") return theme;
   } catch (e) {}
   return null;
@@ -67,18 +83,18 @@ function toggleTheme() {
   var theme = currentTheme() === "dark" ? "light" : "dark";
 
   try {
-    localStorage.setItem("pgweb_theme", theme);
+    storageSet("localStorage", "pgweb_theme", theme);
   } catch (e) {}
 
   applyTheme(theme);
 }
 
 function setRowsLimit(num) {
-  localStorage.setItem("rows_limit", num);
+  storageSet("localStorage", "rows_limit", num);
 }
 
 function getRowsLimit() {
-  return parseInt(localStorage.getItem("rows_limit") || default_rows_limit);
+  return parseInt(storageGet("localStorage", "rows_limit") || default_rows_limit);
 }
 
 function getPaginationOffset() {
@@ -599,7 +615,7 @@ function setCurrentTab(id) {
   $("#" + id).addClass("selected");
 
   // Persist tab selection into the session storage
-  sessionStorage.setItem("tab", id);
+  storageSet("sessionStorage", "tab", id);
 }
 
 function showQueryHistory() {
@@ -1178,11 +1194,11 @@ function initEditor() {
     }
 
     writeQueryTimeout = setTimeout(function() {
-      localStorage.setItem("pgweb_query", editor.getValue());
+      storageSet("localStorage", "pgweb_query", editor.getValue());
     }, 1000);
   });
 
-  var query = localStorage.getItem("pgweb_query");
+  var query = storageGet("localStorage", "pgweb_query");
   if (query && query.length > 0) {
     editor.setValue(query);
     editor.clearSelection();
@@ -1535,7 +1551,7 @@ function enableDatabaseSearch(data) {
 }
 
 function bindInputResizeEvents() {
-  var height = sessionStorage.getItem("input_height");
+  var height = storageGet("sessionStorage", "input_height");
   if (height) {
     resizeInput(height);
     checkInputSize();
@@ -1591,7 +1607,7 @@ function endInputResize() {
   $("#input_resize_handler").removeClass("dragging");
 
   // Save current settings for page reloads
-  sessionStorage.setItem("input_height", $("#input").height());
+  storageSet("sessionStorage", "input_height", $("#input").height());
 }
 
 function onInputResize(event) {
@@ -1634,6 +1650,10 @@ function bindContentModalEvents() {
 }
 
 $(document).ready(function() {
+  // Sync the toggle icons with the theme the head script already applied;
+  // initTheme() adds the server default once /api/info has answered.
+  applyTheme(currentTheme());
+
   bindInputResizeEvents();
   bindContentModalEvents();
 
@@ -1699,12 +1719,12 @@ $(document).ready(function() {
     $(".filters select, .filters input").val("");
 
     if (currentObject.type == "function") {
-      sessionStorage.setItem("tab", "table_structure");
+      storageSet("sessionStorage", "tab", "table_structure");
     } else {
       showTableInfo();
     }
 
-    switch(sessionStorage.getItem("tab")) {
+    switch(storageGet("sessionStorage", "tab")) {
       case "table_content":
         showTableContent();
         break;
@@ -1993,7 +2013,7 @@ $(document).ready(function() {
   var sessionId = reqUrl.searchParams.get("session");
 
   if (sessionId && sessionId != "") {
-    sessionStorage.setItem("session_id", sessionId);
+    storageSet("sessionStorage", "session_id", sessionId);
     window.history.pushState({}, document.title, window.location.pathname);
   }
 

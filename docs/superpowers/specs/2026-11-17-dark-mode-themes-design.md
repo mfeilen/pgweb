@@ -85,7 +85,9 @@ override stylesheet.
   | `--accent-fg` | `#fff` | text on accent |
   | `--success` | `#7eb54e` | connect button, ok states |
   | `--danger` | `#be2740` | error banner, destructive actions |
-  | `--highlight` | `#ffe` / `#f3faff` | row highlight, search hit |
+  | `--highlight` | `#ffe` | row hover highlight |
+  | `--bg-sorted` | `#f3faff` | header of the sorted column |
+  | `--fg-dim` | `#7f7e7f` | table information labels, form help text |
   | `--selection` | `#3874d7` | selected cell |
   | `--shadow` | `#ddd` | box shadows |
 
@@ -198,10 +200,11 @@ UI colours moved to CSS custom properties as the base for further themes.
   carry the class `theme-toggle`, one handler serves both, and
   `applyTheme` updates the icon on both.
 - **Ace `isDark`.** Ace sets the `ace_dark` class from the theme's static
-  `isDark` flag; it cannot follow a variable. The few `.ace_dark` rules
-  (fold widgets, gutter icons, scroller) are overridden in `app.css`
-  through the `--editor-*` variables instead. The statement "no JavaScript
-  when the theme changes" holds for the editor with that override.
+  `isDark` flag; it cannot follow a variable. The theme keeps
+  `isDark = false`. The `.ace_dark` rules only style fold widgets, and the
+  pgsql mode (`ace-pgsql.js`) defines no folding, so nothing is lost. The
+  autocomplete popup (`ext-language_tools.js`) hard-codes a light
+  background; `app.css` overrides it through the `--editor-*` variables.
 - **Branch.** The user chose one collective branch for all of this work;
   the feature and this document stay on `security-update-2026-11`.
 

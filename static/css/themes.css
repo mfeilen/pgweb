@@ -21,9 +21,11 @@
   --bg-hover:       #f1f1f1;
   --bg-active:      #eee;
   --bg-form:        #f6f6f6;
+  --bg-sorted:      #f3faff;
   --fg:             #000;
   --fg-text:        #333;
   --fg-muted:       #999;
+  --fg-dim:         #7f7e7f;
   --fg-faint:       #bbb;
   --border:         #eee;
   --border-mid:     #ccc;
@@ -70,9 +72,11 @@
   --bg-hover:       #2d3035;
   --bg-active:      #373b41;
   --bg-form:        #25282c;
+  --bg-sorted:      #2b3340;
   --fg:             #f2f2f2;
   --fg-text:        #c5c8c6;
   --fg-muted:       #8e9196;
+  --fg-dim:         #a0a4a8;
   --fg-faint:       #63676d;
   --border:         #2f3337;
   --border-mid:     #45494f;

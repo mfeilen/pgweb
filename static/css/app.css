@@ -264,7 +264,7 @@
   height: 24px;
   padding: 0 8px 0 8px;
   font-size: 12px;
-  color: var(--fg-muted) !important;
+  color: var(--fg-dim) !important;
 }
 
 #sidebar div.table-information .lines .line span {
@@ -518,7 +518,7 @@
 }
 
 #results th.active {
-  background: var(--bg-active);
+  background: var(--bg-sorted);
 }
 
 #results[data-mode="browse"] th:hover {
@@ -944,6 +944,16 @@
   background: none !important;
 }
 
+.ace_editor.ace_autocomplete {
+  background: var(--editor-bg);
+  color: var(--editor-fg);
+  border-color: var(--border-mid);
+}
+
+.ace_editor.ace_autocomplete .ace_completion-highlight {
+  color: var(--editor-function);
+}
+
 .ace_autocomplete .ace_active-line {
   background: var(--bg-active) !important;
 }
@@ -970,6 +980,14 @@ body {
 .btn-default.active,
 .open > .dropdown-toggle.btn-default {
   background: var(--bg-active);
+  border-color: var(--border-mid);
+  color: var(--fg-text);
+}
+
+.btn-default.disabled,
+.btn-default[disabled],
+fieldset[disabled] .btn-default {
+  background: var(--bg);
   border-color: var(--border-mid);
   color: var(--fg-text);
 }
@@ -1011,7 +1029,7 @@ pre {
 }
 
 .help-block {
-  color: var(--fg-muted);
+  color: var(--fg-dim);
 }
 
 hr {

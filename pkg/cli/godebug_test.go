@@ -13,6 +13,10 @@ import (
 // use-after-free CVE-2026-98432 needs an MPTCP listener on the target. The
 // "godebug multipathtcp=0" directive in go.mod turns it off for all sockets
 // opened by this module. This test guards that directive.
+//
+// DefaultGODEBUG only lists settings that differ from the Go default. Should a
+// future Go release make multipathtcp=0 the default, the key disappears from the
+// build info and this test fails although the goal is met; drop the test then.
 func TestMultipathTCPDisabledByDefault(t *testing.T) {
 	info, ok := debug.ReadBuildInfo()
 	if !ok {
