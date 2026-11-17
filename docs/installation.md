@@ -83,7 +83,10 @@ make release
 
 ## Supported platforms
 
-- Linux amd64 and arm64 (Docker image), plus arm/v7, 386 and other targets
-  via `make release`
-- macOS (Intel and Apple Silicon)
-- Windows 64 bit
+`make release` builds for:
+
+- Linux amd64, arm64, arm v5 and arm v7
+- macOS amd64 and arm64 (Intel and Apple Silicon)
+- Windows amd64
+
+The Docker image covers Linux amd64 and arm64.
