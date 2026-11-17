@@ -22,23 +22,79 @@ var filterOptions = {
   "not_null":   "IS NOT NULL"
 };
 
+// Browser storage can be unavailable (private mode, blocked site data).
+// Reads then return null and writes are dropped, instead of breaking the page.
+function storageGet(store, key) {
+  try {
+    return window[store].getItem(key);
+  } catch (e) {
+    return null;
+  }
+}
+
+function storageSet(store, key, value) {
+  try {
+    window[store].setItem(key, value);
+  } catch (e) {}
+}
+
 function getSessionId() {
-  var id = sessionStorage.getItem("session_id");
+  var id = storageGet("sessionStorage", "session_id");
 
   if (!id) {
     id = guid();
-    sessionStorage.setItem("session_id", id);
+    storageSet("sessionStorage", "session_id", id);
   }
 
   return id;
 }
 
+// Theme handling. Precedence: the choice stored in this browser, then the
+// server default (features.dark_mode from /api/info), then light.
+function storedTheme() {
+  try {
+    var theme = storageGet("localStorage", "pgweb_theme");
+    if (theme === "dark" || theme === "light") return theme;
+  } catch (e) {}
+  return null;
+}
+
+function currentTheme() {
+  return document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
+}
+
+function applyTheme(theme) {
+  var dark = theme === "dark";
+
+  document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+
+  $(".theme-toggle").
+    attr("title", dark ? "Switch to light mode" : "Switch to dark mode").
+    find("i").
+    toggleClass("fa-moon-o", !dark).
+    toggleClass("fa-sun-o", dark);
+}
+
+function initTheme() {
+  applyTheme(storedTheme() || (appFeatures.dark_mode ? "dark" : "light"));
+}
+
+function toggleTheme() {
+  var theme = currentTheme() === "dark" ? "light" : "dark";
+
+  try {
+    storageSet("localStorage", "pgweb_theme", theme);
+  } catch (e) {}
+
+  applyTheme(theme);
+}
+
 function setRowsLimit(num) {
-  localStorage.setItem("rows_limit", num);
+  storageSet("localStorage", "rows_limit", num);
 }
 
 function getRowsLimit() {
-  return parseInt(localStorage.getItem("rows_limit") || default_rows_limit);
+  return parseInt(storageGet("localStorage", "rows_limit") || default_rows_limit);
 }
 
 function getPaginationOffset() {
@@ -416,6 +472,69 @@ function sortArrow(direction) {
   }
 }
 
+// Multipliers for sizes like "284 MB" and counts like "12K"
+var sortUnits = {
+  "":      1,
+  "bytes": 1,
+  "kb":    1024,
+  "mb":    Math.pow(1024, 2),
+  "gb":    Math.pow(1024, 3),
+  "tb":    Math.pow(1024, 4),
+  "pb":    Math.pow(1024, 5),
+  "k":     1e3,
+  "m":     1e6
+};
+
+// Returns a number for values like "42", "-1.5", "284 MB" or "12K"
+function parseSortNumber(value) {
+  var match = /^(-?\d+(?:\.\d+)?(?:e[-+]?\d+)?)\s*([a-z]*)$/i.exec($.trim(value));
+  if (!match) return null;
+
+  var unit = match[2].toLowerCase();
+  if (!sortUnits.hasOwnProperty(unit)) return null;
+
+  return parseFloat(match[1]) * sortUnits[unit];
+}
+
+// Sort the rendered rows in the browser, for results that are fully loaded
+function sortTableRows(header, sortOrder) {
+  var colIdx  = header.index();
+  var numeric = true;
+
+  var items = $("#results_body tr").get().map(function(row) {
+    var cell  = $(row).children("td").eq(colIdx).children("div");
+    var value = cell.children("span.null").length ? null : cell.text();
+    var num   = value === null ? null : parseSortNumber(value);
+
+    // Compare as numbers only when every value in the column is a number
+    if (value !== null && num === null) numeric = false;
+
+    return { row: row, value: value, num: num };
+  });
+
+  var collator  = new Intl.Collator(undefined, { numeric: true });
+  var direction = sortOrder === "DESC" ? -1 : 1;
+
+  items.sort(function(a, b) {
+    // Nulls go last in both directions
+    if (a.value === null || b.value === null) {
+      return (a.value === null) - (b.value === null);
+    }
+
+    var result = collator.compare(a.value, b.value);
+
+    // Text breaks ties between big integers that parseFloat rounds to the same number
+    if (numeric) result = a.num - b.num || (a.num < 0 ? -result : result);
+
+    return result * direction;
+  });
+
+  $("#results_body").append(items.map(function(item) { return item.row; }));
+
+  $("#results_header th.active").removeClass("active").removeData("order").find("span.sort-arrow").remove();
+  header.addClass("active").data("order", sortOrder).append("<span class='sort-arrow'>&nbsp;" + sortArrow(sortOrder) + "</span>");
+}
+
 function buildTable(results, sortColumn, sortOrder, options) {
   if (!options) options = {};
   var action = options.action;
@@ -496,7 +615,7 @@ function setCurrentTab(id) {
   $("#" + id).addClass("selected");
 
   // Persist tab selection into the session storage
-  sessionStorage.setItem("tab", id);
+  storageSet("sessionStorage", "tab", id);
 }
 
 function showQueryHistory() {
@@ -1043,7 +1162,7 @@ function initEditor() {
   editor.completers.push(objectAutocompleter);
 
   editor.setFontSize(13);
-  editor.setTheme("ace/theme/tomorrow");
+  editor.setTheme("ace/theme/pgweb");
   editor.setShowPrintMargin(false);
   editor.getSession().setMode("ace/mode/pgsql");
   editor.getSession().setTabSize(2);
@@ -1075,11 +1194,11 @@ function initEditor() {
     }
 
     writeQueryTimeout = setTimeout(function() {
-      localStorage.setItem("pgweb_query", editor.getValue());
+      storageSet("localStorage", "pgweb_query", editor.getValue());
     }, 1000);
   });
 
-  var query = localStorage.getItem("pgweb_query");
+  var query = storageGet("localStorage", "pgweb_query");
   if (query && query.length > 0) {
     editor.setValue(query);
     editor.clearSelection();
@@ -1432,7 +1551,7 @@ function enableDatabaseSearch(data) {
 }
 
 function bindInputResizeEvents() {
-  var height = sessionStorage.getItem("input_height");
+  var height = storageGet("sessionStorage", "input_height");
   if (height) {
     resizeInput(height);
     checkInputSize();
@@ -1488,7 +1607,7 @@ function endInputResize() {
   $("#input_resize_handler").removeClass("dragging");
 
   // Save current settings for page reloads
-  sessionStorage.setItem("input_height", $("#input").height());
+  storageSet("sessionStorage", "input_height", $("#input").height());
 }
 
 function onInputResize(event) {
@@ -1531,6 +1650,10 @@ function bindContentModalEvents() {
 }
 
 $(document).ready(function() {
+  // Sync the toggle icons with the theme the head script already applied;
+  // initTheme() adds the server default once /api/info has answered.
+  applyTheme(currentTheme());
+
   bindInputResizeEvents();
   bindContentModalEvents();
 
@@ -1596,12 +1719,12 @@ $(document).ready(function() {
     $(".filters select, .filters input").val("");
 
     if (currentObject.type == "function") {
-      sessionStorage.setItem("tab", "table_structure");
+      storageSet("sessionStorage", "tab", "table_structure");
     } else {
       showTableInfo();
     }
 
-    switch(sessionStorage.getItem("tab")) {
+    switch(storageGet("sessionStorage", "tab")) {
       case "table_content":
         showTableContent();
         break;
@@ -1628,14 +1751,29 @@ $(document).ready(function() {
     performRowAction(action, value);
   })
 
-  $("#results").on("click", "th", function(e) {
-    if (!$("#table_content").hasClass("selected")) return;
-
+  $("#results").on("click", "th.table-header-col", function(e) {
     var sortColumn = $(this).data("name");
     var sortOrder  = $(this).data("order") === "ASC" ? "DESC" : "ASC";
 
-    $(this).data("order", sortOrder);
-    showTableContent(sortColumn, sortOrder);
+    // Rows are paginated, so the database sorts them
+    if ($("#results").data("mode") == "browse") {
+      // Rows stay on screen while another tab loads
+      if (!$("#table_content").hasClass("selected")) return;
+
+      $(this).data("order", sortOrder);
+      showTableContent(sortColumn, sortOrder);
+      return;
+    }
+
+    // Row order is the content of a query plan
+    if (sortColumn == "QUERY PLAN") return;
+
+    sortTableRows($(this), sortOrder);
+  });
+
+  $(".theme-toggle").on("click", function(e) {
+    e.preventDefault();
+    toggleTheme();
   });
 
   $("#refresh_tables").on("click", function() {
@@ -1875,7 +2013,7 @@ $(document).ready(function() {
   var sessionId = reqUrl.searchParams.get("session");
 
   if (sessionId && sessionId != "") {
-    sessionStorage.setItem("session_id", sessionId);
+    storageSet("sessionStorage", "session_id", sessionId);
     window.history.pushState({}, document.title, window.location.pathname);
   }
 
@@ -1887,6 +2025,7 @@ $(document).ready(function() {
 
     appInfo = resp.app;
     appFeatures = resp.features;
+    initTheme();
 
     getConnection(function(resp) {
       if (resp.error) {

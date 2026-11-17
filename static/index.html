@@ -5,13 +5,25 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta http-equiv="Content-Language" content="en">
+  <script type="text/javascript">
+    // Apply the theme chosen in this browser before the stylesheets load,
+    // so a dark page never flashes light. See applyTheme() in app.js.
+    try {
+      var storedTheme = localStorage.getItem("pgweb_theme");
+      if (storedTheme === "dark" || storedTheme === "light") {
+        document.documentElement.setAttribute("data-theme", storedTheme);
+      }
+    } catch (e) {}
+  </script>
   <link rel="stylesheet" href="static/css/bootstrap.css"></link>
   <link rel="stylesheet" href="static/css/font-awesome.css"></link>
+  <link rel="stylesheet" href="static/css/themes.css"></link>
   <link rel="stylesheet" href="static/css/app.css"></link>
   <link rel="icon" type="image/x-icon" href="static/img/icon.ico" />
   <script type="text/javascript" src="static/js/jquery.js"></script>
   <script type="text/javascript" src="static/js/ace.js"></script>
   <script type="text/javascript" src="static/js/ace-pgsql.js"></script>
+  <script type="text/javascript" src="static/js/theme-pgweb.js"></script>
   <script type="text/javascript" src="static/js/ext-language_tools.js"></script>
   <script type="text/javascript" src="static/js/bootstrap-contextmenu.js"></script>
   <script type="text/javascript" src="static/js/bootstrap-dropdown.js"></script>
@@ -38,6 +50,7 @@
         <a href="#" id="edit_connection" class="btn btn-default btn-sm"><i class="fa fa-database"></i> Connect</a>
         <a href="#" id="close_connection" class="btn btn-default btn-sm">Disconnect</a>
       </div>
+      <a href="#" class="theme-toggle" title="Switch to dark mode"><i class="fa fa-moon-o"></i></a>
     </div>
     <div id="sidebar">
       <div class="current-database">
@@ -158,6 +171,7 @@
   </div>
 
   <div id="connection_window">
+    <a href="#" class="theme-toggle" title="Switch to dark mode"><i class="fa fa-moon-o"></i></a>
     <div class="connection-settings">
       <div class="header">
         <h1>pgweb</h1>

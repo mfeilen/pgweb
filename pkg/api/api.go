@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/tuvistavie/securerandom"
+	"github.com/google/uuid"
 
 	"github.com/sosedoff/pgweb/pkg/bookmarks"
 	"github.com/sosedoff/pgweb/pkg/client"
@@ -111,11 +111,12 @@ func ConnectWithBackend(c *gin.Context) {
 	}
 
 	// Make the new session
-	sid, err := securerandom.Uuid()
+	id, err := uuid.NewRandom()
 	if err != nil {
 		badRequest(c, err)
 		return
 	}
+	sid := id.String()
 	c.Request.Header.Add("x-session-id", sid)
 
 	// Connect to the database
@@ -606,6 +607,7 @@ func GetInfo(c *gin.Context) {
 			"query_timeout":  command.Opts.QueryTimeout,
 			"local_queries":  QueryStore != nil,
 			"bookmarks_only": command.Opts.BookmarksOnly,
+			"dark_mode":      command.Opts.DarkMode,
 		},
 	})
 }

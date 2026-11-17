@@ -1,0 +1,111 @@
+/*
+ * pgweb colour themes.
+ *
+ * A theme is one block of CSS custom properties. The active theme is the
+ * data-theme attribute on <html> ("light" or "dark"); without the attribute
+ * the light theme applies. app.css and the Ace theme (js/theme-pgweb.js)
+ * use only these variables, so a new theme is a new block below.
+ */
+
+:root,
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  /* Page */
+  --brand:          #79589f;
+  --brand-fg:       #fff;
+  --brand-fg-muted: #d6cce2;
+  --brand-hover:    rgba(255, 255, 255, 0.15);
+  --bg:             #fff;
+  --bg-panel:       #f9f9f9;
+  --bg-hover:       #f1f1f1;
+  --bg-active:      #eee;
+  --bg-form:        #f6f6f6;
+  --bg-sorted:      #f3faff;
+  --fg:             #000;
+  --fg-text:        #333;
+  --fg-muted:       #999;
+  --fg-dim:         #7f7e7f;
+  --fg-faint:       #bbb;
+  --border:         #eee;
+  --border-mid:     #ccc;
+  --border-strong:  #999;
+  --accent:         #79589f;
+  --accent-fg:      #fff;
+  --success:        #7eb54e;
+  --success-hover:  #64903e;
+  --danger:         #be2740;
+  --highlight:      #ffe;
+  --selection:      #3874d7;
+  --shadow:         #ddd;
+
+  /* Editor (Ace "Tomorrow") */
+  --editor-bg:                 #FFFFFF;
+  --editor-fg:                 #4D4D4C;
+  --editor-gutter-bg:          var(--bg);
+  --editor-gutter-fg:          var(--fg-faint);
+  --editor-active-line:        #EFEFEF;
+  --editor-gutter-active-line: #dcdcdc;
+  --editor-selection:          #D6D6D6;
+  --editor-cursor:             #AEAFAD;
+  --editor-bracket:            #D1D1D1;
+  --editor-keyword:            #8959A8;
+  --editor-operator:           #3E999F;
+  --editor-constant:           #F5871F;
+  --editor-function:           #4271AE;
+  --editor-type:               #C99E00;
+  --editor-string:             #718C00;
+  --editor-variable:           #C82829;
+  --editor-comment:            #8E908C;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Page */
+  --brand:          #4a3862;
+  --brand-fg:       #fff;
+  --brand-fg-muted: #c9bcd9;
+  --brand-hover:    rgba(255, 255, 255, 0.1);
+  --bg:             #1d1f21;
+  --bg-panel:       #25282c;
+  --bg-hover:       #2d3035;
+  --bg-active:      #373b41;
+  --bg-form:        #25282c;
+  --bg-sorted:      #2b3340;
+  --fg:             #f2f2f2;
+  --fg-text:        #c5c8c6;
+  --fg-muted:       #8e9196;
+  --fg-dim:         #a0a4a8;
+  --fg-faint:       #63676d;
+  --border:         #2f3337;
+  --border-mid:     #45494f;
+  --border-strong:  #6b6f76;
+  --accent:         #b294bb;
+  --accent-fg:      #fff;
+  --success:        #8fcf5f;
+  --success-hover:  #a7dd7c;
+  --danger:         #c0392b;
+  --highlight:      #2a2d24;
+  --selection:      #2f5fa8;
+  --shadow:         #000;
+
+  /* Editor (Ace "Tomorrow Night") */
+  --editor-bg:                 #1D1F21;
+  --editor-fg:                 #C5C8C6;
+  --editor-gutter-bg:          var(--bg);
+  --editor-gutter-fg:          var(--fg-faint);
+  --editor-active-line:        #282A2E;
+  --editor-gutter-active-line: #282A2E;
+  --editor-selection:          #373B41;
+  --editor-cursor:             #AEAFAD;
+  --editor-bracket:            #4B4E55;
+  --editor-keyword:            #B294BB;
+  --editor-operator:           #8ABEB7;
+  --editor-constant:           #DE935F;
+  --editor-function:           #81A2BE;
+  --editor-type:               #F0C674;
+  --editor-string:             #B5BD68;
+  --editor-variable:           #CC6666;
+  --editor-comment:            #969896;
+}

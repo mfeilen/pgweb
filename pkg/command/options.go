@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/jackc/pgpassfile"
@@ -66,6 +67,7 @@ type Options struct {
 	MetricsEnabled               bool   `long:"metrics" description:"Enable Prometheus metrics endpoint"`
 	MetricsPath                  string `long:"metrics-path" description:"Path prefix for Prometheus metrics endpoint" default:"/metrics"`
 	MetricsAddr                  string `long:"metrics-addr" description:"Listen host and port for Prometheus metrics server"`
+	DarkMode                     bool   `long:"dark-mode" description:"Enable dark mode by default"`
 }
 
 var Opts Options
@@ -130,6 +132,17 @@ func ParseOptions(args []string) (Options, error) {
 	if getPrefixedEnvVar("LOCK_SESSION") != "" {
 		opts.LockSession = true
 		opts.Sessions = false
+	}
+
+	// The --dark-mode flag wins over the environment variable.
+	if !opts.DarkMode {
+		if val := getPrefixedEnvVar("DARK_MODE"); val != "" {
+			darkMode, err := strconv.ParseBool(val)
+			if err != nil {
+				return opts, fmt.Errorf("invalid PGWEB_DARK_MODE value %q: expected true or false", val)
+			}
+			opts.DarkMode = darkMode
+		}
 	}
 
 	if opts.Sessions || opts.ConnectBackend != "" {
@@ -246,5 +259,6 @@ func AvailableEnvVars() string {
 		"  " + envVarPrefix + "AUTH_USER     HTTP basic auth username",
 		"  " + envVarPrefix + "AUTH_PASS     HTTP basic auth password",
 		"  " + envVarPrefix + "BOOKMARKS_DIR Overrides default directory for bookmark files",
+		"  " + envVarPrefix + "DARK_MODE     Enable dark mode by default (true or false)",
 	}, "\n")
 }
