@@ -295,7 +295,7 @@ func (client *Client) Function(id string) (*Result, error) {
 
 func (client *Client) TableRows(table string, opts RowsOptions) (*Result, error) {
 	schema, tableName := getSchemaAndTable(table)
-	sql := fmt.Sprintf(`SELECT * FROM "%s"."%s"`, schema, tableName)
+	sql := fmt.Sprintf("SELECT * FROM %s.%s", quoteIdent(schema), quoteIdent(tableName))
 
 	where, args, err := client.rowsCondition(table, opts)
 	if err != nil {
@@ -307,11 +307,14 @@ func (client *Client) TableRows(table string, opts RowsOptions) (*Result, error)
 	}
 
 	if opts.SortColumn != "" {
-		if opts.SortOrder == "" {
-			opts.SortOrder = "ASC"
+		// The column is quoted (PostgreSQL rejects unknown names) and the
+		// direction is reduced to one of two keywords, so neither can carry SQL.
+		order := "ASC"
+		if strings.EqualFold(strings.TrimSpace(opts.SortOrder), "DESC") {
+			order = "DESC"
 		}
 
-		sql += fmt.Sprintf(` ORDER BY "%s" %s`, opts.SortColumn, opts.SortOrder)
+		sql += fmt.Sprintf(" ORDER BY %s %s", quoteIdent(opts.SortColumn), order)
 	}
 
 	if opts.Limit > 0 {
@@ -452,8 +455,18 @@ func (client *Client) Activity() (*Result, error) {
 	return client.query(query)
 }
 
+// ReadOnly reports whether writes are blocked, either for this connection
+// (bookmark setting) or globally via the --readonly flag.
+func (client *Client) ReadOnly() bool {
+	return client.readonly || command.Opts.ReadOnly
+}
+
 func (client *Client) Query(query string) (*Result, error) {
 	res, err := client.query(query)
+
+	// An ad-hoc statement may have changed the schema; drop the cached table
+	// metadata so row editing and filters see the current definition.
+	client.ResetTableMetadata("")
 
 	// Save history records only if query did not fail
 	if err == nil && !client.hasHistoryRecord(query) {
@@ -525,48 +538,8 @@ func (client *Client) exec(query string, args ...interface{}) (*Result, error) {
 	return &result, nil
 }
 
-func (client *Client) query(query string, args ...interface{}) (*Result, error) {
-	if client.db == nil {
-		return nil, nil
-	}
-
-	// Update the last usage time
-	defer func() {
-		client.lastQueryTime = time.Now().UTC()
-	}()
-
-	// We're going to force-set transaction mode on every query.
-	// This is needed so that default mode could not be changed by user.
-	if command.Opts.ReadOnly || client.readonly {
-		if err := client.SetReadOnlyMode(); err != nil {
-			return nil, err
-		}
-		if containsRestrictedKeywords(query) {
-			return nil, errors.New("query contains keywords not allowed in read-only mode")
-		}
-	}
-
-	action := strings.ToLower(strings.Split(query, " ")[0])
-	hasReturnValues := strings.Contains(strings.ToLower(query), " returning ")
-
-	if (action == "update" || action == "delete") && !hasReturnValues {
-		return client.exec(query, args...)
-	}
-
-	ctx, cancel := client.context()
-	defer cancel()
-
-	queryStart := time.Now()
-	rows, err := client.db.QueryxContext(ctx, query, args...)
-	queryFinish := time.Now()
-	if err != nil {
-		if command.Opts.Debug {
-			log.Println("Failed query:", query, "\nArgs:", args)
-		}
-		return nil, err
-	}
-	defer rows.Close()
-
+// collectResult reads all rows of a result set into a Result.
+func collectResult(rows *sqlx.Rows, queryStart, queryFinish time.Time) (*Result, error) {
 	cols, err := rows.Columns()
 	if err != nil {
 		return nil, err
@@ -613,6 +586,51 @@ func (client *Client) query(query string, args ...interface{}) (*Result, error) 
 	result.PostProcess()
 
 	return &result, nil
+}
+
+func (client *Client) query(query string, args ...interface{}) (*Result, error) {
+	if client.db == nil {
+		return nil, nil
+	}
+
+	// Update the last usage time
+	defer func() {
+		client.lastQueryTime = time.Now().UTC()
+	}()
+
+	// We're going to force-set transaction mode on every query.
+	// This is needed so that default mode could not be changed by user.
+	if command.Opts.ReadOnly || client.readonly {
+		if err := client.SetReadOnlyMode(); err != nil {
+			return nil, err
+		}
+		if containsRestrictedKeywords(query) {
+			return nil, errors.New("query contains keywords not allowed in read-only mode")
+		}
+	}
+
+	action := strings.ToLower(strings.Split(query, " ")[0])
+	hasReturnValues := strings.Contains(strings.ToLower(query), " returning ")
+
+	if (action == "update" || action == "delete") && !hasReturnValues {
+		return client.exec(query, args...)
+	}
+
+	ctx, cancel := client.context()
+	defer cancel()
+
+	queryStart := time.Now()
+	rows, err := client.db.QueryxContext(ctx, query, args...)
+	queryFinish := time.Now()
+	if err != nil {
+		if command.Opts.Debug {
+			log.Println("Failed query:", query, "\nArgs:", args)
+		}
+		return nil, err
+	}
+	defer rows.Close()
+
+	return collectResult(rows, queryStart, queryFinish)
 }
 
 // Close database connection

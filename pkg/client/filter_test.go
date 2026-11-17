@@ -154,3 +154,8 @@ func TestSplitListValue(t *testing.T) {
 func TestFilterOperators(t *testing.T) {
 	assert.Len(t, FilterOperators(), 11)
 }
+
+func TestBuildFiltersRequiresMetadata(t *testing.T) {
+	_, _, err := buildFilters([]Filter{{Column: "id", Op: "equal", Value: "1"}}, nil, 0)
+	assert.Error(t, err)
+}

@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"mime"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -38,6 +39,14 @@ func requireRowEditing() gin.HandlerFunc {
 
 // parseRowRequest reads and validates the JSON body of a row request.
 func parseRowRequest(c *gin.Context) (*rowRequest, error) {
+	// Only JSON bodies are accepted. A cross-origin page can send text/plain
+	// or form bodies without a preflight; JSON forces the preflight, which
+	// fails, so the request never reaches the database.
+	contentType := c.Request.Header.Get("Content-Type")
+	if mediaType, _, err := mime.ParseMediaType(contentType); err != nil || mediaType != "application/json" {
+		return nil, errUnsupportedContentType
+	}
+
 	req := rowRequest{}
 
 	if err := json.NewDecoder(c.Request.Body).Decode(&req); err != nil {
@@ -70,8 +79,9 @@ func GetTableMetadata(c *gin.Context) {
 	}
 
 	// Row editing availability is a server-side decision, so it is reported
-	// alongside the metadata to keep the frontend logic simple.
-	if !rowEditingEnabled() {
+	// alongside the metadata to keep the frontend logic simple. A connection
+	// that is read-only by bookmark setting gets no write offers either.
+	if !rowEditingEnabled() || DB(c).ReadOnly() {
 		meta = disableWrites(meta)
 	}
 

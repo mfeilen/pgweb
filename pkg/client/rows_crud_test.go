@@ -4,6 +4,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"github.com/sosedoff/pgweb/pkg/command"
 	"github.com/stretchr/testify/require"
 )
 
@@ -110,4 +112,16 @@ func TestQuotedName(t *testing.T) {
 	meta := &TableMetadata{Schema: "my schema", Table: `we"ird`}
 
 	assert.Equal(t, `"my schema"."we""ird"`, meta.quotedName())
+}
+
+func TestClientReadOnly(t *testing.T) {
+	original := command.Opts.ReadOnly
+	defer func() { command.Opts.ReadOnly = original }()
+
+	command.Opts.ReadOnly = false
+	assert.False(t, (&Client{}).ReadOnly())
+	assert.True(t, (&Client{readonly: true}).ReadOnly())
+
+	command.Opts.ReadOnly = true
+	assert.True(t, (&Client{}).ReadOnly())
 }

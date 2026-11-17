@@ -11,17 +11,25 @@ import (
 	"github.com/sosedoff/pgweb/pkg/command"
 )
 
-// integrationClient connects to the database pointed to by PGWEB_TEST_URL.
+// integrationClient connects to the test database. PGWEB_TEST_URL wins; without
+// it the same PGHOST/PGPORT/PGUSER/PGPASSWORD/PGDATABASE variables as the rest
+// of the client tests are used, so the suite runs in CI.
 //
 // These tests create and drop their own scratch tables, so they can run
-// against any database the user has write access to. The suite is skipped
-// when the variable is not set.
+// against any database the user has write access to.
 func integrationClient(t *testing.T) *Client {
 	t.Helper()
 
 	url := os.Getenv("PGWEB_TEST_URL")
 	if url == "" {
-		t.Skip("PGWEB_TEST_URL is not set, skipping integration tests")
+		url = fmt.Sprintf(
+			"postgres://%s:%s@%s:%s/%s?sslmode=disable",
+			getVar("PGUSER", "postgres"),
+			getVar("PGPASSWORD", "postgres"),
+			getVar("PGHOST", "localhost"),
+			getVar("PGPORT", "5432"),
+			getVar("PGDATABASE", "booktown"),
+		)
 	}
 
 	if err := command.SetDefaultOptions(); err != nil {
@@ -427,4 +435,81 @@ func TestIntegrationRowFiltersLegacyWhere(t *testing.T) {
 	})
 	require.NoError(t, err)
 	assert.Len(t, res.Rows, 2)
+}
+
+// A write that would touch more than one row must be rolled back, not merely
+// reported. Simulated with metadata that still lists a primary key after the
+// constraint has been dropped underneath the cache.
+func TestIntegrationSingleRowWritesRollBack(t *testing.T) {
+	cl := integrationClient(t)
+	defer cl.Close()
+
+	table := setupCRUDTable(t, cl)
+
+	_, err := cl.TableMetadata(table)
+	require.NoError(t, err)
+
+	execStatements(t, cl,
+		fmt.Sprintf("ALTER TABLE %s DROP CONSTRAINT pgweb_crud_test_pkey", table),
+		fmt.Sprintf("INSERT INTO %s (id, name) VALUES (1, 'a'), (1, 'b')", table),
+	)
+
+	key := map[string]interface{}{"id": 1}
+
+	_, err = cl.DeleteRow(table, key)
+	assert.Equal(t, ErrMultipleRows, err)
+
+	_, err = cl.UpdateRow(table, key, map[string]interface{}{"name": "changed"})
+	assert.Equal(t, ErrMultipleRows, err)
+
+	res, err := cl.query(fmt.Sprintf("SELECT name FROM %s WHERE id = 1 ORDER BY name", table))
+	require.NoError(t, err)
+	require.Len(t, res.Rows, 2, "both rows must still exist")
+	assert.Equal(t, "a", res.Rows[0][0])
+	assert.Equal(t, "b", res.Rows[1][0])
+}
+
+// Ad-hoc queries from the SQL editor may change the schema, so they drop the
+// cached metadata.
+func TestIntegrationQueryInvalidatesMetadata(t *testing.T) {
+	cl := integrationClient(t)
+	defer cl.Close()
+
+	table := setupCRUDTable(t, cl)
+
+	meta, err := cl.TableMetadata(table)
+	require.NoError(t, err)
+	assert.Equal(t, []string{"id"}, meta.PrimaryKey)
+
+	_, err = cl.Query(fmt.Sprintf("ALTER TABLE %s DROP CONSTRAINT pgweb_crud_test_pkey", table))
+	require.NoError(t, err)
+
+	fresh, err := cl.TableMetadata(table)
+	require.NoError(t, err)
+	assert.Empty(t, fresh.PrimaryKey)
+}
+
+// Sort parameters of the rows view are quoted and whitelisted, never spliced
+// into the statement as SQL.
+func TestIntegrationTableRowsSortIsSafe(t *testing.T) {
+	cl := integrationClient(t)
+	defer cl.Close()
+
+	table := setupCRUDTable(t, cl)
+	execStatements(t, cl, fmt.Sprintf("INSERT INTO %s (name) VALUES ('b'), ('a')", table))
+
+	_, err := cl.TableRows(table, RowsOptions{SortColumn: `name" ; DROP TABLE pgweb_crud_test; --`, Limit: 10})
+	assert.Error(t, err, "a column name containing a quote must be rejected by PostgreSQL, not executed")
+
+	res, err := cl.TableRows(table, RowsOptions{SortColumn: "name", SortOrder: "ASC; DROP TABLE pgweb_crud_test", Limit: 10})
+	require.NoError(t, err)
+	require.Len(t, res.Rows, 2)
+	assert.Equal(t, "a", res.Rows[0][1])
+
+	res, err = cl.TableRows(table, RowsOptions{SortColumn: "name", SortOrder: "desc", Limit: 10})
+	require.NoError(t, err)
+	assert.Equal(t, "b", res.Rows[0][1])
+
+	_, err = cl.query(fmt.Sprintf("SELECT 1 FROM %s", table))
+	assert.NoError(t, err, "table must still exist")
 }

@@ -59,6 +59,9 @@ func buildFilters(filters []Filter, meta *TableMetadata, startIdx int) (string, 
 	if len(filters) == 0 {
 		return "", nil, nil
 	}
+	if meta == nil {
+		return "", nil, fmt.Errorf("table metadata is required to validate filter columns")
+	}
 
 	conditions := make([]string, 0, len(filters))
 	args := []interface{}{}
@@ -70,7 +73,7 @@ func buildFilters(filters []Filter, meta *TableMetadata, startIdx int) (string, 
 			return "", nil, fmt.Errorf("filter column is required")
 		}
 
-		if meta != nil && meta.Column(column) == nil {
+		if meta.Column(column) == nil {
 			return "", nil, fmt.Errorf("unknown filter column: %s", column)
 		}
 

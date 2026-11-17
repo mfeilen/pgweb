@@ -5,8 +5,7 @@ import (
 	"fmt"
 	"sort"
 	"strings"
-
-	"github.com/sosedoff/pgweb/pkg/command"
+	"time"
 )
 
 var (
@@ -25,10 +24,61 @@ var (
 
 // writeAllowed returns an error when the connection can't perform writes.
 func (client *Client) writeAllowed() error {
-	if client.readonly || command.Opts.ReadOnly {
+	if client.ReadOnly() {
 		return ErrReadOnlyMode
 	}
 	return nil
+}
+
+// writeSingleRow runs an UPDATE or DELETE with RETURNING inside a transaction
+// and commits only if exactly one row came back. Anything else is rolled back,
+// so a key that matches several rows (a dropped primary key, stale metadata)
+// can never change more than one row.
+func (client *Client) writeSingleRow(sql string, args ...interface{}) (*Result, error) {
+	if client.db == nil {
+		return nil, nil
+	}
+
+	defer func() {
+		client.lastQueryTime = time.Now().UTC()
+	}()
+
+	ctx, cancel := client.context()
+	defer cancel()
+
+	tx, err := client.db.BeginTxx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	queryStart := time.Now()
+	rows, err := tx.QueryxContext(ctx, sql, args...)
+	queryFinish := time.Now()
+	if err != nil {
+		_ = tx.Rollback()
+		return nil, err
+	}
+
+	res, err := collectResult(rows, queryStart, queryFinish)
+	rows.Close()
+	if err != nil {
+		_ = tx.Rollback()
+		return nil, err
+	}
+
+	switch len(res.Rows) {
+	case 1:
+		if err := tx.Commit(); err != nil {
+			return nil, err
+		}
+		return res, nil
+	case 0:
+		_ = tx.Rollback()
+		return nil, ErrRowNotFound
+	default:
+		_ = tx.Rollback()
+		return nil, ErrMultipleRows
+	}
 }
 
 // InsertRow inserts a single row and returns the resulting record.
@@ -127,19 +177,7 @@ func (client *Client) UpdateRow(table string, key map[string]interface{}, values
 		condition,
 	)
 
-	res, err := client.query(sql, args...)
-	if err != nil {
-		return nil, err
-	}
-
-	switch len(res.Rows) {
-	case 1:
-		return res, nil
-	case 0:
-		return nil, ErrRowNotFound
-	default:
-		return nil, ErrMultipleRows
-	}
+	return client.writeSingleRow(sql, args...)
 }
 
 // DeleteRow removes a single row identified by its primary key.
@@ -161,23 +199,10 @@ func (client *Client) DeleteRow(table string, key map[string]interface{}) (*Resu
 		return nil, err
 	}
 
-	// RETURNING makes the delete go through the regular query path so that the
-	// number of affected rows can be verified before reporting success.
+	// RETURNING lets writeSingleRow count the affected rows before committing.
 	sql := fmt.Sprintf("DELETE FROM %s WHERE %s RETURNING *", meta.quotedName(), condition)
 
-	res, err := client.query(sql, args...)
-	if err != nil {
-		return nil, err
-	}
-
-	switch len(res.Rows) {
-	case 1:
-		return res, nil
-	case 0:
-		return nil, ErrRowNotFound
-	default:
-		return nil, ErrMultipleRows
-	}
+	return client.writeSingleRow(sql, args...)
 }
 
 // writableColumns validates the given values against the table metadata and

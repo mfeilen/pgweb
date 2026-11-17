@@ -83,6 +83,7 @@ func Test_parseRowRequest(t *testing.T) {
 
 		c, _ := gin.CreateTestContext(httptest.NewRecorder())
 		c.Request = httptest.NewRequest("PUT", "/rows", bytes.NewBufferString(body))
+		c.Request.Header.Set("Content-Type", "application/json; charset=utf-8")
 
 		req, err := parseRowRequest(c)
 		require.NoError(t, err)
@@ -93,14 +94,31 @@ func Test_parseRowRequest(t *testing.T) {
 	t.Run("invalid payload", func(t *testing.T) {
 		c, _ := gin.CreateTestContext(httptest.NewRecorder())
 		c.Request = httptest.NewRequest("PUT", "/rows", bytes.NewBufferString("not json"))
+		c.Request.Header.Set("Content-Type", "application/json")
 
 		_, err := parseRowRequest(c)
 		assert.Equal(t, errInvalidRowPayload, err)
 	})
 
+	// A browser sends text/plain or form bodies cross-origin without a
+	// preflight; requiring JSON forces the preflight, which fails.
+	t.Run("wrong content type", func(t *testing.T) {
+		for _, ct := range []string{"", "text/plain", "application/x-www-form-urlencoded"} {
+			c, _ := gin.CreateTestContext(httptest.NewRecorder())
+			c.Request = httptest.NewRequest("POST", "/rows", bytes.NewBufferString(`{"values":{"name":"x"}}`))
+			if ct != "" {
+				c.Request.Header.Set("Content-Type", ct)
+			}
+
+			_, err := parseRowRequest(c)
+			assert.Equal(t, errUnsupportedContentType, err, ct)
+		}
+	})
+
 	t.Run("empty payload", func(t *testing.T) {
 		c, _ := gin.CreateTestContext(httptest.NewRecorder())
 		c.Request = httptest.NewRequest("DELETE", "/rows", bytes.NewBufferString(""))
+		c.Request.Header.Set("Content-Type", "application/json")
 
 		_, err := parseRowRequest(c)
 		assert.Equal(t, errInvalidRowPayload, err)
