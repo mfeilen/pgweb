@@ -1106,7 +1106,7 @@ function initEditor() {
   editor.completers.push(objectAutocompleter);
 
   editor.setFontSize(13);
-  editor.setTheme("ace/theme/tomorrow");
+  editor.setTheme("ace/theme/pgweb");
   editor.setShowPrintMargin(false);
   editor.getSession().setMode("ace/mode/pgsql");
   editor.getSession().setTabSize(2);
