@@ -1,9 +1,14 @@
 name: docker
 
+# Manual only: started from the Actions tab by the repository owner.
+# No image is built or published on push.
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Additional image tag (latest and the commit sha are always set)"
+        required: false
+        default: ""
 
 env:
   GO_VERSION: "1.27"
@@ -15,6 +20,8 @@ jobs:
     name: docker images
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    # Only the repository owner may publish images.
+    if: github.actor == github.repository_owner
     permissions:
       contents: read
       packages: write
@@ -44,6 +51,7 @@ jobs:
           tags: |
             ${{ env.IMAGE }}:latest
             ${{ env.IMAGE }}:${{ github.sha }}
+            ${{ inputs.tag != '' && format('{0}:{1}', env.IMAGE, inputs.tag) || '' }}
           platforms: linux/amd64,linux/arm64
           build-args: |
             "CGO_ENABLED=${{ env.CGO_ENABLED }}"
