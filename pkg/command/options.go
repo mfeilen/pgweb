@@ -68,7 +68,7 @@ type Options struct {
 	MetricsEnabled               bool   `long:"metrics" description:"Enable Prometheus metrics endpoint"`
 	MetricsPath                  string `long:"metrics-path" description:"Path prefix for Prometheus metrics endpoint" default:"/metrics"`
 	MetricsAddr                  string `long:"metrics-addr" description:"Listen host and port for Prometheus metrics server"`
-	Theme                        string `long:"theme" description:"Default UI theme: auto (follow the operating system), light or dark" default:"auto"`
+	Theme                        string `long:"theme" description:"Default UI theme: auto (follow the operating system), light, dark or a theme pack id (see docs/themes.md)" default:"auto"`
 	DarkMode                     bool   `long:"dark-mode" description:"Shorthand for --theme dark"`
 }
 
@@ -148,7 +148,7 @@ func ParseOptions(args []string) (Options, error) {
 		if val := getPrefixedEnvVar("THEME"); val != "" {
 			opts.Theme = strings.ToLower(val)
 			if !validTheme(opts.Theme) {
-				return opts, fmt.Errorf("invalid PGWEB_THEME value %q: expected auto, light or dark", val)
+				return opts, fmt.Errorf("invalid PGWEB_THEME value %q: expected auto, light, dark or an id from docs/themes.md", val)
 			}
 		} else if val := getPrefixedEnvVar("DARK_MODE"); val != "" {
 			if strings.EqualFold(val, "auto") {
@@ -167,7 +167,7 @@ func ParseOptions(args []string) (Options, error) {
 		}
 	}
 	if !validTheme(opts.Theme) {
-		return opts, fmt.Errorf("invalid theme %q: expected auto, light or dark", opts.Theme)
+		return opts, fmt.Errorf("invalid theme %q: expected auto, light, dark or an id from docs/themes.md", opts.Theme)
 	}
 
 	if opts.Sessions || opts.ConnectBackend != "" {
@@ -259,9 +259,18 @@ func getCurrentUser() string {
 	return os.Getenv("USER")
 }
 
-// validTheme reports whether the value is one of the supported UI themes.
+// validTheme reports whether the value is a built-in theme or one of the
+// generated theme packs (pkg/command/theme_packs.go, docs/themes.md).
 func validTheme(theme string) bool {
-	return theme == "auto" || theme == "light" || theme == "dark"
+	if theme == "auto" || theme == "light" || theme == "dark" {
+		return true
+	}
+	for _, id := range themePackIDs {
+		if id == theme {
+			return true
+		}
+	}
+	return false
 }
 
 // argsContain reports whether a flag was given on the command line, either as
@@ -300,7 +309,7 @@ func AvailableEnvVars() string {
 		"  " + envVarPrefix + "AUTH_USER     HTTP basic auth username",
 		"  " + envVarPrefix + "AUTH_PASS     HTTP basic auth password",
 		"  " + envVarPrefix + "BOOKMARKS_DIR Overrides default directory for bookmark files",
-		"  " + envVarPrefix + "THEME         Default UI theme: auto, light or dark",
+		"  " + envVarPrefix + "THEME         Default UI theme: auto, light, dark or a theme pack id",
 		"  " + envVarPrefix + "DARK_MODE     Shorthand: true = dark, false = light, auto = auto",
 		"  " + envVarPrefix + "NO_ROW_EDITING Disable table row insert, update and delete operations",
 	}, "\n")
