@@ -1644,7 +1644,7 @@ function bindContentModalEvents() {
     var value = unescapeHtml($(this).html());
     if (!value) return;
 
-    $("#content_modal pre").html(value);
+    $("#content_modal pre").text(value);
     $("#content_modal").show();
   })
 }
