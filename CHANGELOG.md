@@ -4,6 +4,7 @@ Current [release](https://github.com/sosedoff/pgweb/releases) is `0.17.0`.
 
 ## Next
 
+- `FIX` bytea columns are encoded by column type with the configured binary codec (printable values too, text columns never), and `PGWEB_BINARY_CODEC` is honoured
 - `SECURITY` Disable Multipath TCP (MPTCP) listeners via `godebug multipathtcp=0` to remove the published attack path for Linux kernel CVE-2026-98432
 - `SECURITY` Bump golang.org/x/crypto to 0.59.x (includes the ssh fixes from 0.52.0), GH-867
 - `NEW` Update to Go 1.27 and refresh all Go dependencies (gin 1.12, lib/pq 1.12, go-flags 1.6, sqlx 1.4, prometheus client 1.25, toml 1.6, sshkeys 1.4)

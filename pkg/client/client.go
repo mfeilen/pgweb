@@ -555,6 +555,16 @@ func collectResult(rows *sqlx.Rows, queryStart, queryFinish time.Time) (*Result,
 		Rows:    []Row{},
 	}
 
+	if types, err := rows.ColumnTypes(); err == nil {
+		binary := []int{}
+		for idx, ct := range types {
+			if strings.EqualFold(ct.DatabaseTypeName(), "BYTEA") {
+				binary = append(binary, idx)
+			}
+		}
+		result.SetBinaryColumns(binary)
+	}
+
 	for rows.Next() {
 		obj, err := rows.SliceScan()
 

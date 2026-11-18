@@ -47,6 +47,10 @@ type (
 		Columns    []string     `json:"columns"`
 		Rows       []Row        `json:"rows"`
 		Stats      *ResultStats `json:"stats,omitempty"`
+
+		// binaryColumns marks the indexes of bytea columns, set from the
+		// driver's column types. nil means the types are unknown.
+		binaryColumns map[int]bool
 	}
 
 	ResultStats struct {
@@ -74,6 +78,21 @@ type (
 
 // Due to big int number limitations in javascript, numbers should be encoded
 // as strings so they could be properly loaded on the frontend.
+// SetBinaryColumns records which column indexes hold bytea values.
+func (res *Result) SetBinaryColumns(indexes []int) {
+	res.binaryColumns = map[int]bool{}
+	for _, idx := range indexes {
+		res.binaryColumns[idx] = true
+	}
+}
+
+func (res *Result) isBinaryColumn(idx int, val string) bool {
+	if res.binaryColumns == nil {
+		return hasBinary(val, 8)
+	}
+	return res.binaryColumns[idx]
+}
+
 func (res *Result) PostProcess() {
 	for i, row := range res.Rows {
 		for j, col := range row {
@@ -98,7 +117,11 @@ func (res *Result) PostProcess() {
 					res.Rows[i][j] = strconv.FormatFloat(val, 'e', -1, 64)
 				}
 			case string:
-				if hasBinary(val, 8) && BinaryCodec != CodecNone {
+				// bytea columns are encoded by column type, so printable
+				// binary values are encoded as well and text columns with
+				// newlines or non-ASCII characters are left alone. The byte
+				// heuristic only serves results without column type info.
+				if BinaryCodec != CodecNone && res.isBinaryColumn(j, val) {
 					res.Rows[i][j] = encodeBinaryData([]byte(val), BinaryCodec)
 				}
 			case time.Time:

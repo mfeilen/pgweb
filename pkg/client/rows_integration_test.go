@@ -518,3 +518,41 @@ func TestIntegrationTableRowsSortIsSafe(t *testing.T) {
 	_, err = cl.query(fmt.Sprintf("SELECT 1 FROM %s", table))
 	assert.NoError(t, err, "table must still exist")
 }
+
+// bytea columns are encoded with the configured codec by column type, so
+// printable binary values are encoded too; text columns stay untouched even
+// when they contain newlines or non-ASCII characters.
+func TestIntegrationByteaEncoding(t *testing.T) {
+	cl := integrationClient(t)
+	defer cl.Close()
+
+	table := "public.pgweb_bytea_test"
+	execStatements(t, cl,
+		fmt.Sprintf("DROP TABLE IF EXISTS %s", table),
+		fmt.Sprintf("CREATE TABLE %s (id int PRIMARY KEY, blob bytea, note text)", table),
+		fmt.Sprintf(`INSERT INTO %s VALUES (1, 'abc'::bytea, E'M\u00fcller\nsecond line'), (2, '\x00ff10'::bytea, 'plain'), (3, NULL, NULL)`, table),
+	)
+	t.Cleanup(func() { _, _ = cl.query(fmt.Sprintf("DROP TABLE IF EXISTS %s", table)) })
+
+	previous := BinaryCodec
+	defer func() { BinaryCodec = previous }()
+
+	BinaryCodec = CodecBase64
+	res, err := cl.TableRows(table, RowsOptions{SortColumn: "id", Limit: 10})
+	require.NoError(t, err)
+	require.Len(t, res.Rows, 3)
+	assert.Equal(t, "YWJj", res.Rows[0][1], "printable bytea is encoded because of its column type")
+	assert.Equal(t, "M\u00fcller\nsecond line", res.Rows[0][2], "text is never encoded")
+	assert.Equal(t, "AP8Q", res.Rows[1][1])
+	assert.Nil(t, res.Rows[2][1])
+
+	BinaryCodec = CodecHex
+	res, err = cl.Query(fmt.Sprintf("SELECT blob FROM %s WHERE id = 2", table))
+	require.NoError(t, err)
+	assert.Equal(t, "00ff10", res.Rows[0][0], "ad-hoc queries use the codec too")
+
+	BinaryCodec = CodecNone
+	res, err = cl.TableRows(table, RowsOptions{SortColumn: "id", Limit: 10})
+	require.NoError(t, err)
+	assert.Equal(t, "abc", res.Rows[0][1], "codec none leaves bytes as they are")
+}

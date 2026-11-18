@@ -76,6 +76,21 @@ func TestParseOptions(t *testing.T) {
 		assert.EqualError(t, err, `invalid PGWEB_THEME value "blue": expected auto, light, dark or an id from docs/themes.md`)
 	})
 
+	t.Run("binary codec", func(t *testing.T) {
+		opts, err := ParseOptions([]string{})
+		assert.NoError(t, err)
+		assert.Equal(t, "none", opts.BinaryCodec)
+
+		t.Setenv("PGWEB_BINARY_CODEC", "base64")
+		opts, err = ParseOptions([]string{})
+		assert.NoError(t, err)
+		assert.Equal(t, "base64", opts.BinaryCodec)
+
+		opts, err = ParseOptions([]string{"--binary-codec", "hex"})
+		assert.NoError(t, err)
+		assert.Equal(t, "hex", opts.BinaryCodec, "flag wins over the environment")
+	})
+
 	t.Run("dark mode flag", func(t *testing.T) {
 		opts, err := ParseOptions([]string{"--dark-mode"})
 		assert.NoError(t, err)

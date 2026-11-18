@@ -140,6 +140,12 @@ func ParseOptions(args []string) (Options, error) {
 		opts.Sessions = false
 	}
 
+	if !argsContain(args, "--binary-codec") {
+		if val := getPrefixedEnvVar("BINARY_CODEC"); val != "" {
+			opts.BinaryCodec = val
+		}
+	}
+
 	// Theme: flags win over environment variables. --dark-mode is a shorthand
 	// for --theme dark; PGWEB_DARK_MODE accepts true, false or auto.
 	if opts.DarkMode {
@@ -310,6 +316,7 @@ func AvailableEnvVars() string {
 		"  " + envVarPrefix + "AUTH_USER     HTTP basic auth username",
 		"  " + envVarPrefix + "AUTH_PASS     HTTP basic auth password",
 		"  " + envVarPrefix + "BOOKMARKS_DIR Overrides default directory for bookmark files",
+		"  " + envVarPrefix + "BINARY_CODEC  Codec for bytea values: none, hex, base58 or base64",
 		"  " + envVarPrefix + "THEME         Default UI theme: auto, light, dark or a theme pack id",
 		"  " + envVarPrefix + "DARK_MODE     Shorthand: true = dark, false = light, auto = auto",
 		"  " + envVarPrefix + "NO_ROW_EDITING Disable table row insert, update and delete operations",
