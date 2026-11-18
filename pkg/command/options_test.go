@@ -3,6 +3,7 @@ package command
 import (
 	"os"
 	"path/filepath"
+	"regexp"
 	"testing"
 
 	"github.com/mitchellh/go-homedir"
@@ -53,6 +54,10 @@ func TestParseOptions(t *testing.T) {
 		opts, err := ParseOptions([]string{"--theme", "dracula"})
 		assert.NoError(t, err)
 		assert.Equal(t, "dracula", opts.Theme)
+
+		opts, err = ParseOptions([]string{"--theme", "Dracula"})
+		assert.NoError(t, err)
+		assert.Equal(t, "dracula", opts.Theme, "flag value is case-insensitive like the env var")
 
 		t.Setenv("PGWEB_THEME", "one-dark")
 		opts, err = ParseOptions([]string{})
@@ -209,4 +214,17 @@ func TestThemePackIDs(t *testing.T) {
 		seen[id] = true
 		assert.True(t, validTheme(id), id)
 	}
+}
+
+// The generated id list must match the generated frontend list.
+func TestThemePackIDsMatchFrontendList(t *testing.T) {
+	data, err := os.ReadFile("../../static/js/theme-packs.js")
+	assert.NoError(t, err)
+
+	re := regexp.MustCompile(`id: "([a-z0-9-]+)"`)
+	var ids []string
+	for _, m := range re.FindAllStringSubmatch(string(data), -1) {
+		ids = append(ids, m[1])
+	}
+	assert.Equal(t, ids, themePackIDs)
 }

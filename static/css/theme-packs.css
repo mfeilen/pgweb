@@ -4,12 +4,12 @@
  * re-run the converter instead.
  */
 
-/* a11y Dark (prism-a11y-dark.css) */
+/* a11y Dark (prism-a11y-dark.css) - a11y-dark theme for JavaScript, CSS, and HTML / Based on the okaidia theme: https://github.com/PrismJS/prism/blob/gh-pages/themes/prism-okaidia.css / @author ericwbailey */
 :root[data-theme="a11y-dark"] {
   color-scheme: dark;
-  --brand: #0fa1a1;
+  --brand: #0c7d7d;
   --brand-fg: #fff;
-  --brand-fg-muted: #b7e3e3;
+  --brand-fg-muted: #cee5e5;
   --brand-hover: rgba(255, 255, 255, 0.15);
   --bg: #2b2b2b;
   --bg-panel: #313131;
@@ -29,7 +29,7 @@
   --accent-fg: #fff;
   --success: #abe338;
   --success-hover: #bae75d;
-  --danger: #ffa07a;
+  --danger: #be2740;
   --highlight: #3a412d;
   --selection: #80701a;
   --shadow: #000;
@@ -53,12 +53,12 @@
   --editor-comment: #d4d0ab;
 }
 
-/* Atom Dark (prism-atom-dark.css) */
+/* Atom Dark (prism-atom-dark.css) - atom-dark theme for `prism.js` / Based on Atom's `atom-dark` theme: https://github.com/atom/atom-dark-syntax / @author Joe Gibson (@gibsjose) */
 :root[data-theme="atom-dark"] {
   color-scheme: dark;
-  --brand: #6c8fb1;
+  --brand: #5b7996;
   --brand-fg: #fff;
-  --brand-fg-muted: #d3dde8;
+  --brand-fg-muted: #dee4ea;
   --brand-hover: rgba(255, 255, 255, 0.15);
   --bg: #1d1f21;
   --bg-panel: #222426;
@@ -102,12 +102,12 @@
   --editor-comment: #7c7c7c;
 }
 
-/* CB (prism-cb.css) */
+/* CB (prism-cb.css) - Based on Plugin: Syntax Highlighter CB / Plugin URI: http://wp.tutsplus.com/tutorials/plugins/adding-a-syntax-highlighter-shortcode-using-prism-js / Description: Highlight your code snippets with an easy to use shortcode based on Lea Verou' */
 :root[data-theme="cb"] {
   color-scheme: dark;
   --brand: #8a5926;
   --brand-fg: #fff;
-  --brand-fg-muted: #dccdbe;
+  --brand-fg-muted: #e8ded4;
   --brand-hover: rgba(255, 255, 255, 0.15);
   --bg: #222222;
   --bg-panel: #292929;
@@ -127,7 +127,7 @@
   --accent-fg: #fff;
   --success: #b0c975;
   --success-hover: #c0d491;
-  --danger: #e45734;
+  --danger: #be2740;
   --highlight: #33362c;
   --selection: #70572b;
   --shadow: #000;
@@ -151,12 +151,12 @@
   --editor-comment: #797979;
 }
 
-/* Coldark Dark (prism-coldark-dark.css) */
+/* Coldark Dark (prism-coldark-dark.css) - Coldark Theme for Prism.js / Theme variation: Dark / Tested with HTML, CSS, JS, JSON, PHP, YAML, Bash script / @author Armand Philippot <contact@armandphilippot.com> / @homepage https://github.com/ArmandPhilippot/coldark-prism / @license MI */
 :root[data-theme="coldark-dark"] {
   color-scheme: dark;
-  --brand: #9d7b60;
+  --brand: #846851;
   --brand-fg: #fff;
-  --brand-fg-muted: #e2d7cf;
+  --brand-fg-muted: #e6e1dc;
   --brand-hover: rgba(255, 255, 255, 0.15);
   --bg: #111b27;
   --bg-panel: #17212d;
@@ -200,12 +200,12 @@
   --editor-comment: #8da1b9;
 }
 
-/* Darcula (prism-darcula.css) */
+/* Darcula (prism-darcula.css) - Darcula theme / Adapted from a theme based on: / IntelliJ Darcula Theme (https://github.com/bulenkov/Darcula) / @author Alexandre Paradis <service.paradis@gmail.com> / @version 1.0 */
 :root[data-theme="darcula"] {
   color-scheme: dark;
   --brand: #945d30;
   --brand-fg: #fff;
-  --brand-fg-muted: #dfcec1;
+  --brand-fg-muted: #eadfd6;
   --brand-hover: rgba(255, 255, 255, 0.15);
   --bg: #2b2b2b;
   --bg-panel: #2f2f30;
@@ -225,7 +225,7 @@
   --accent-fg: #fff;
   --success: #6a8759;
   --success-hover: #77916f;
-  --danger: #cc7832;
+  --danger: #be2740;
   --highlight: #333631;
   --selection: #806945;
   --shadow: #000;
@@ -249,12 +249,12 @@
   --editor-comment: #808080;
 }
 
-/* Dracula (prism-dracula.css) */
+/* Dracula (prism-dracula.css) - Dracula Theme originally by Zeno Rocha [@zenorocha] / https://draculatheme.com/ / Ported for PrismJS by Albert Vallverdu [@byverdu] */
 :root[data-theme="dracula"] {
   color-scheme: dark;
-  --brand: #68a6b7;
+  --brand: #4b7884;
   --brand-fg: #fff;
-  --brand-fg-muted: #d2e4e9;
+  --brand-fg-muted: #dbe4e6;
   --brand-hover: rgba(255, 255, 255, 0.15);
   --bg: #282a36;
   --bg-panel: #2e303c;
@@ -274,9 +274,9 @@
   --accent-fg: #fff;
   --success: #50fa7b;
   --success-hover: #72fa93;
-  --danger: #ff79c6;
+  --danger: #be2740;
   --highlight: #2d433e;
-  --selection: #787d58;
+  --selection: #6e7351;
   --shadow: #000;
   --overlay: rgba(0, 0, 0, 0.6);
   --editor-bg: #282a36;
@@ -298,12 +298,12 @@
   --editor-comment: #6272a4;
 }
 
-/* Duotone Dark (prism-duotone-dark.css) */
+/* Duotone Dark (prism-duotone-dark.css) - Name: Duotone Dark / Author: Simurai, adapted from DuoTone themes for Atom (http://simurai.com/projects/2016/01/01/duotone-themes) / Conversion: Bram de Haan (http://atelierbram.github.io/Base2Tone-prism/output/prism/prism-base2tone-evening */
 :root[data-theme="duotone-dark"] {
   color-scheme: dark;
-  --brand: #b49276;
+  --brand: #8d715c;
   --brand-fg: #fff;
-  --brand-fg-muted: #e9ded6;
+  --brand-fg-muted: #e8e3de;
   --brand-hover: rgba(255, 255, 255, 0.15);
   --bg: #2a2734;
   --bg-panel: #2d2a3a;
@@ -313,17 +313,17 @@
   --bg-sorted: #3b3552;
   --fg: #a998fd;
   --fg-text: #9a86fd;
-  --fg-dim: #786ac1;
-  --fg-muted: #6c6783;
+  --fg-dim: #8376c6;
+  --fg-muted: #78738d;
   --fg-faint: #574d84;
   --border: #37324c;
   --border-mid: #433c60;
   --border-strong: #51487a;
   --accent: #9a86fd;
   --accent-fg: #fff;
-  --success: #ffcc99;
-  --success-hover: #ebbead;
-  --danger: #c4b9fe;
+  --success: #7eb54e;
+  --success-hover: #84ac71;
+  --danger: #be2740;
   --highlight: #443b40;
   --selection: #574d84;
   --shadow: #000;
@@ -344,48 +344,48 @@
   --editor-type: #c4b9fe;
   --editor-string: #ffcc99;
   --editor-variable: #ffcc99;
-  --editor-comment: #6c6783;
+  --editor-comment: #78738d;
 }
 
-/* Duotone Earth (prism-duotone-earth.css) */
+/* Duotone Earth (prism-duotone-earth.css) - Name:   Duotone Earth / Author: Simurai, adapted from DuoTone themes for Atom (http://simurai.com/projects/2016/01/01/duotone-themes) / Conversion: Bram de Haan (http://atelierbram.github.io/Base2Tone-prism/output/prism/prism-base2tone-eart */
 :root[data-theme="duotone-earth"] {
   color-scheme: dark;
-  --brand: #b58f38;
+  --brand: #8e6f2c;
   --brand-fg: #fff;
-  --brand-fg-muted: #e9ddc3;
+  --brand-fg-muted: #e8e2d5;
   --brand-hover: rgba(255, 255, 255, 0.15);
   --bg: #322d29;
-  --bg-panel: #352f2b;
-  --bg-hover: #38322e;
-  --bg-active: #3d3732;
-  --bg-form: #36312c;
+  --bg-panel: #35302c;
+  --bg-hover: #3a3430;
+  --bg-active: #413b36;
+  --bg-form: #38322e;
   --bg-sorted: #3f3833;
-  --fg: #9a8c83;
-  --fg-text: #88786d;
-  --fg-dim: #6e6259;
-  --fg-muted: #6a5f58;
-  --fg-faint: #544b44;
-  --border: #3c3631;
-  --border-mid: #453e38;
-  --border-strong: #504741;
+  --fg: #b1a69f;
+  --fg-text: #a3968e;
+  --fg-dim: #8b827b;
+  --fg-muted: #817871;
+  --fg-faint: #5f5751;
+  --border: #403a35;
+  --border-mid: #4b443f;
+  --border-strong: #5a524c;
   --accent: #88786d;
   --accent-fg: #fff;
-  --success: #fcc440;
-  --success-hover: #e5b549;
-  --danger: #a48774;
+  --success: #7eb54e;
+  --success-hover: #85af5b;
+  --danger: #be2740;
   --highlight: #4a3f2c;
   --selection: #544b44;
   --shadow: #000;
   --overlay: rgba(0, 0, 0, 0.6);
   --editor-bg: #322d29;
-  --editor-fg: #88786d;
+  --editor-fg: #a3968e;
   --editor-gutter-bg: var(--bg);
   --editor-gutter-fg: var(--fg-faint);
-  --editor-active-line: #37322d;
-  --editor-gutter-active-line: #37322d;
+  --editor-active-line: #39332f;
+  --editor-gutter-active-line: #39332f;
   --editor-selection: #6f5849;
   --editor-cursor: #fcc440;
-  --editor-bracket: #4c443d;
+  --editor-bracket: #544d47;
   --editor-keyword: #fcc440;
   --editor-operator: #bfa05a;
   --editor-constant: #bfa05a;
@@ -393,48 +393,48 @@
   --editor-type: #a48774;
   --editor-string: #fcc440;
   --editor-variable: #fcc440;
-  --editor-comment: #6a5f58;
+  --editor-comment: #817871;
 }
 
-/* Duotone Forest (prism-duotone-forest.css) */
+/* Duotone Forest (prism-duotone-forest.css) - Name:   Duotone Forest / Author: by Simurai, adapted from DuoTone themes for Atom (http://simurai.com/projects/2016/01/01/duotone-themes) / Conversion: Bram de Haan (http://atelierbram.github.io/Base2Tone-prism/output/prism/prism-base2tone- */
 :root[data-theme="duotone-forest"] {
   color-scheme: dark;
-  --brand: #8b984f;
+  --brand: #6d773e;
   --brand-fg: #fff;
-  --brand-fg-muted: #dce0ca;
+  --brand-fg-muted: #e2e4d8;
   --brand-hover: rgba(255, 255, 255, 0.15);
   --bg: #2a2d2a;
-  --bg-panel: #2c2f2c;
-  --bg-hover: #2e332e;
-  --bg-active: #323732;
-  --bg-form: #2d312d;
+  --bg-panel: #2d302d;
+  --bg-hover: #313531;
+  --bg-active: #363b36;
+  --bg-form: #2f322f;
   --bg-sorted: #333933;
-  --fg: #7f917f;
-  --fg-text: #687d68;
-  --fg-dim: #556555;
-  --fg-muted: #535f53;
-  --fg-faint: #434d43;
-  --border: #313731;
-  --border-mid: #383f38;
-  --border-strong: #404940;
+  --fg: #9ba99b;
+  --fg-text: #899a89;
+  --fg-dim: #798479;
+  --fg-muted: #6e786e;
+  --fg-faint: #505950;
+  --border: #353a35;
+  --border-mid: #3f453f;
+  --border-strong: #4b534b;
   --accent: #687d68;
   --accent-fg: #fff;
   --success: #e5fb79;
-  --success-hover: #cce276;
-  --danger: #b3d6b3;
+  --success-hover: #d3e87c;
+  --danger: #be2740;
   --highlight: #404633;
   --selection: #434d43;
   --shadow: #000;
   --overlay: rgba(0, 0, 0, 0.6);
   --editor-bg: #2a2d2a;
-  --editor-fg: #687d68;
+  --editor-fg: #899a89;
   --editor-gutter-bg: var(--bg);
   --editor-gutter-fg: var(--fg-faint);
-  --editor-active-line: #2e322e;
-  --editor-gutter-active-line: #2e322e;
+  --editor-active-line: #303430;
+  --editor-gutter-active-line: #303430;
   --editor-selection: #435643;
   --editor-cursor: #e5fb79;
-  --editor-bracket: #3d453d;
+  --editor-bracket: #474e47;
   --editor-keyword: #e5fb79;
   --editor-operator: #a2b34d;
   --editor-constant: #a2b34d;
@@ -442,48 +442,48 @@
   --editor-type: #b3d6b3;
   --editor-string: #e5fb79;
   --editor-variable: #e5fb79;
-  --editor-comment: #535f53;
+  --editor-comment: #6e786e;
 }
 
-/* Duotone Sea (prism-duotone-sea.css) */
+/* Duotone Sea (prism-duotone-sea.css) - Name: Duotone Sea / Author: by Simurai, adapted from DuoTone themes by Simurai for Atom (http://simurai.com/projects/2016/01/01/duotone-themes) / Conversion: Bram de Haan (http://atelierbram.github.io/Base2Tone-prism/output/prism/prism-base */
 :root[data-theme="duotone-sea"] {
   color-scheme: dark;
-  --brand: #38a685;
+  --brand: #2c8267;
   --brand-fg: #fff;
-  --brand-fg-muted: #c3e4da;
+  --brand-fg-muted: #d5e6e1;
   --brand-hover: rgba(255, 255, 255, 0.15);
   --bg: #1d262f;
-  --bg-panel: #1f2832;
-  --bg-hover: #212b36;
-  --bg-active: #25303b;
-  --bg-form: #202a34;
+  --bg-panel: #202933;
+  --bg-hover: #242d37;
+  --bg-active: #29343f;
+  --bg-form: #222b35;
   --bg-sorted: #26313d;
-  --fg: #70869f;
-  --fg-text: #57718e;
-  --fg-dim: #465b72;
-  --fg-muted: #4a5f78;
-  --fg-faint: #344455;
-  --border: #242f3a;
-  --border-mid: #2a3744;
-  --border-strong: #314050;
+  --fg: #8fa1b4;
+  --fg-text: #7b90a7;
+  --fg-dim: #6c7b8d;
+  --fg-muted: #65788d;
+  --fg-faint: #43505f;
+  --border: #28333d;
+  --border-mid: #323d49;
+  --border-strong: #3e4b59;
   --accent: #57718e;
   --accent-fg: #fff;
   --success: #47ebb4;
-  --success-hover: #4ad3ac;
-  --danger: #7eb6f6;
+  --success-hover: #51d9b1;
+  --danger: #be2740;
   --highlight: #223e3f;
   --selection: #344455;
   --shadow: #000;
   --overlay: rgba(0, 0, 0, 0.6);
   --editor-bg: #1d262f;
-  --editor-fg: #57718e;
+  --editor-fg: #7b90a7;
   --editor-gutter-bg: var(--bg);
   --editor-gutter-fg: var(--fg-faint);
-  --editor-active-line: #202b35;
-  --editor-gutter-active-line: #202b35;
+  --editor-active-line: #232c36;
+  --editor-gutter-active-line: #232c36;
   --editor-selection: #004a9e;
   --editor-cursor: #47ebb4;
-  --editor-bracket: #2e3d4c;
+  --editor-bracket: #394653;
   --editor-keyword: #47ebb4;
   --editor-operator: #0aa370;
   --editor-constant: #0aa370;
@@ -491,48 +491,48 @@
   --editor-type: #7eb6f6;
   --editor-string: #47ebb4;
   --editor-variable: #47ebb4;
-  --editor-comment: #4a5f78;
+  --editor-comment: #65788d;
 }
 
-/* Duotone Space (prism-duotone-space.css) */
+/* Duotone Space (prism-duotone-space.css) - Name: Duotone Space / Author: Simurai, adapted from DuoTone themes for Atom (http://simurai.com/projects/2016/01/01/duotone-themes) / Conversion: Bram de Haan (http://atelierbram.github.io/Base2Tone-prism/output/prism/prism-base2tone-space- */
 :root[data-theme="duotone-space"] {
   color-scheme: dark;
-  --brand: #b26845;
+  --brand: #a4603f;
   --brand-fg: #fff;
-  --brand-fg-muted: #e8d2c7;
+  --brand-fg-muted: #eddfd9;
   --brand-hover: rgba(255, 255, 255, 0.15);
   --bg: #24242e;
-  --bg-panel: #262631;
-  --bg-hover: #2a2a35;
-  --bg-active: #2f2f3b;
-  --bg-form: #282833;
+  --bg-panel: #272732;
+  --bg-hover: #2b2b36;
+  --bg-active: #31313d;
+  --bg-form: #292934;
   --bg-sorted: #30303d;
-  --fg: #8b8ba3;
-  --fg-text: #767693;
-  --fg-dim: #5d5d75;
-  --fg-muted: #5b5b76;
-  --fg-faint: #454556;
-  --border: #2e2e3a;
-  --border-mid: #363644;
-  --border-strong: #414151;
+  --fg: #9c9cb2;
+  --fg-text: #8b8ba4;
+  --fg-dim: #78788b;
+  --fg-muted: #74748b;
+  --fg-faint: #4d4d5d;
+  --border: #30303c;
+  --border-mid: #3b3b48;
+  --border-strong: #484857;
   --accent: #767693;
   --accent-fg: #fff;
-  --success: #fe8c52;
-  --success-hover: #e3885f;
-  --danger: #aaaaca;
+  --success: #7eb54e;
+  --success-hover: #81ad5f;
+  --danger: #be2740;
   --highlight: #3e3032;
   --selection: #454556;
   --shadow: #000;
   --overlay: rgba(0, 0, 0, 0.6);
   --editor-bg: #24242e;
-  --editor-fg: #767693;
+  --editor-fg: #8b8ba4;
   --editor-gutter-bg: var(--bg);
   --editor-gutter-fg: var(--fg-faint);
-  --editor-active-line: #292934;
-  --editor-gutter-active-line: #292934;
+  --editor-active-line: #2a2a35;
+  --editor-gutter-active-line: #2a2a35;
   --editor-selection: #5151e6;
   --editor-cursor: #fe8c52;
-  --editor-bracket: #3d3d4c;
+  --editor-bracket: #434351;
   --editor-keyword: #fe8c52;
   --editor-operator: #dd672c;
   --editor-constant: #dd672c;
@@ -540,15 +540,15 @@
   --editor-type: #aaaaca;
   --editor-string: #fe8c52;
   --editor-variable: #fe8c52;
-  --editor-comment: #5b5b76;
+  --editor-comment: #74748b;
 }
 
-/* Gruvbox Dark (prism-gruvbox-dark.css) */
+/* Gruvbox Dark (prism-gruvbox-dark.css) - Gruvbox dark theme / Adapted from a theme based on: / Vim Gruvbox dark Theme (https://github.com/morhetz/gruvbox) / @author Azat S. <to@azat.io> / @version 1.0 */
 :root[data-theme="gruvbox-dark"] {
   color-scheme: dark;
   --brand: #ad3b2d;
   --brand-fg: #fff;
-  --brand-fg-muted: #e6c4c0;
+  --brand-fg-muted: #efd8d5;
   --brand-hover: rgba(255, 255, 255, 0.15);
   --bg: #1d2021;
   --bg-panel: #232625;
@@ -568,7 +568,7 @@
   --accent-fg: #fff;
   --success: #b8bb26;
   --success-hover: #c2c142;
-  --danger: #fb4934;
+  --danger: #be2740;
   --highlight: #303322;
   --selection: #755f27;
   --shadow: #000;
@@ -592,12 +592,12 @@
   --editor-comment: #a89984;
 }
 
-/* Holi Theme (prism-holi-theme.css) */
+/* Holi Theme (prism-holi-theme.css) - MIT License / Copyright (c) 2021 Ayush Saini / Holi Theme for prism.js / @author Ayush Saini <@AyushCodes on Twitter> */
 :root[data-theme="holi-theme"] {
   color-scheme: dark;
-  --brand: #0b954b;
+  --brand: #097e3f;
   --brand-fg: #fff;
-  --brand-fg-muted: #b6dfc9;
+  --brand-fg-muted: #cee5d9;
   --brand-hover: rgba(255, 255, 255, 0.15);
   --bg: #030314;
   --bg-panel: #090a1b;
@@ -615,9 +615,9 @@
   --border-strong: #4d5366;
   --accent: #78f3e9;
   --accent-fg: #fff;
-  --success: #e60067;
-  --success-hover: #e32e85;
-  --danger: #d6e7ff;
+  --success: #7eb54e;
+  --success-hover: #90bf71;
+  --danger: #be2740;
   --highlight: #0b1a2e;
   --selection: #326369;
   --shadow: #000;
@@ -644,9 +644,9 @@
 /* Hopscotch (prism-hopscotch.css) */
 :root[data-theme="hopscotch"] {
   color-scheme: dark;
-  --brand: #6e8c39;
+  --brand: #5d7730;
   --brand-fg: #fff;
-  --brand-fg-muted: #d4ddc4;
+  --brand-fg-muted: #dfe4d6;
   --brand-hover: rgba(255, 255, 255, 0.15);
   --bg: #322931;
   --bg-panel: #362d35;
@@ -666,7 +666,7 @@
   --accent-fg: #fff;
   --success: #149b93;
   --success-hover: #35a09a;
-  --danger: #dd464c;
+  --danger: #be2740;
   --highlight: #2e373d;
   --selection: #836a41;
   --shadow: #000;
@@ -690,12 +690,12 @@
   --editor-comment: #797379;
 }
 
-/* Laserwave (prism-laserwave.css) */
+/* Laserwave (prism-laserwave.css) - Laserwave Theme originally by Jared Jones for Visual Studio Code / https://github.com/Jaredk3nt/laserwave / Ported for PrismJS by Simon Jespersen [https://github.com/simjes] */
 :root[data-theme="laserwave"] {
   color-scheme: dark;
-  --brand: #378190;
+  --brand: #337784;
   --brand-fg: #fff;
-  --brand-fg-muted: #c3d9de;
+  --brand-fg-muted: #d6e4e6;
   --brand-hover: rgba(255, 255, 255, 0.15);
   --bg: #27212e;
   --bg-panel: #2d2834;
@@ -715,7 +715,7 @@
   --accent-fg: #fff;
   --success: #74dfc4;
   --success-hover: #90e5d0;
-  --danger: #eb64b9;
+  --danger: #be2740;
   --highlight: #383744;
   --selection: #753c66;
   --shadow: #000;
@@ -739,12 +739,12 @@
   --editor-comment: #91889b;
 }
 
-/* Lucario (prism-lucario.css) */
+/* Lucario (prism-lucario.css) - Lucario Theme originally by Raphael Amorim [@raphamorim] / https://github.com/raphamorim/lucario / Ported for PrismJS by Christopher Kapic [@christopher-kapic] */
 :root[data-theme="lucario"] {
   color-scheme: dark;
-  --brand: #558964;
+  --brand: #4e7e5c;
   --brand-fg: #fff;
-  --brand-fg-muted: #ccdcd1;
+  --brand-fg-muted: #dce5de;
   --brand-hover: rgba(255, 255, 255, 0.15);
   --bg: #263e52;
   --bg-panel: #2c4457;
@@ -791,9 +791,9 @@
 /* Material Dark (prism-material-dark.css) */
 :root[data-theme="material-dark"] {
   color-scheme: dark;
-  --brand: #926fa9;
+  --brand: #86669b;
   --brand-fg: #fff;
-  --brand-fg-muted: #ded4e5;
+  --brand-fg-muted: #e7e0eb;
   --brand-hover: rgba(255, 255, 255, 0.15);
   --bg: #2f2f2f;
   --bg-panel: #353535;
@@ -804,7 +804,7 @@
   --fg: #f1f1f1;
   --fg-text: #eeeeee;
   --fg-dim: #b5b5b5;
-  --fg-muted: #616161;
+  --fg-muted: #7a7a7a;
   --fg-faint: #7b7b7b;
   --border: #464646;
   --border-mid: #595959;
@@ -813,7 +813,7 @@
   --accent-fg: #fff;
   --success: #80cbc4;
   --success-hover: #96d2cc;
-  --danger: #ff6666;
+  --danger: #be2740;
   --highlight: #3d4532;
   --selection: #6c577a;
   --shadow: #000;
@@ -834,15 +834,15 @@
   --editor-type: #f2ff00;
   --editor-string: #a5e844;
   --editor-variable: #ff6666;
-  --editor-comment: #616161;
+  --editor-comment: #7a7a7a;
 }
 
 /* Material Oceanic (prism-material-oceanic.css) */
 :root[data-theme="material-oceanic"] {
   color-scheme: dark;
-  --brand: #8f70ac;
+  --brand: #84679e;
   --brand-fg: #fff;
-  --brand-fg-muted: #ddd4e6;
+  --brand-fg-muted: #e6e1ec;
   --brand-hover: rgba(255, 255, 255, 0.15);
   --bg: #263238;
   --bg-panel: #2b373d;
@@ -853,7 +853,7 @@
   --fg: #ccd5e7;
   --fg-text: #c3cee3;
   --fg-dim: #949fb0;
-  --fg-muted: #546e7a;
+  --fg-muted: #6f858f;
   --fg-faint: #65707c;
   --border: #39454d;
   --border-mid: #49545e;
@@ -862,7 +862,7 @@
   --accent-fg: #fff;
   --success: #80cbc4;
   --success-hover: #8dccca;
-  --danger: #f07178;
+  --danger: #be2740;
   --highlight: #394842;
   --selection: #66587f;
   --shadow: #000;
@@ -883,15 +883,15 @@
   --editor-type: #f2ff00;
   --editor-string: #c3e88d;
   --editor-variable: #f07178;
-  --editor-comment: #546e7a;
+  --editor-comment: #6f858f;
 }
 
-/* Night Owl (prism-night-owl.css) */
+/* Night Owl (prism-night-owl.css) - MIT License / Copyright (c) 2018 Sarah Drasner / Sarah Drasner's[@sdras] Night Owl / Ported by Sara vieria [@SaraVieira] / Added by Souvik Mandal [@SimpleIndian] */
 :root[data-theme="night-owl"] {
   color-scheme: dark;
-  --brand: #539691;
+  --brand: #467f7a;
   --brand-fg: #fff;
-  --brand-fg-muted: #cbe0de;
+  --brand-fg-muted: #dae5e4;
   --brand-hover: rgba(255, 255, 255, 0.15);
   --bg: #011627;
   --bg-panel: #091d2d;
@@ -935,12 +935,12 @@
   --editor-comment: #637777;
 }
 
-/* Nord (prism-nord.css) */
+/* Nord (prism-nord.css) - Nord Theme Originally by Arctic Ice Studio / https://nordtheme.com / Ported for PrismJS by Zane Hitchcoxc (@zwhitchcox) and Gabriel Ramos (@gabrieluizramos) */
 :root[data-theme="nord"] {
   color-scheme: dark;
-  --brand: #647b94;
+  --brand: #5c7188;
   --brand-fg: #fff;
-  --brand-fg-muted: #d1d7df;
+  --brand-fg-muted: #dee3e7;
   --brand-hover: rgba(255, 255, 255, 0.15);
   --bg: #2e3440;
   --bg-panel: #343a45;
@@ -951,7 +951,7 @@
   --fg: #f9f9f4;
   --fg-text: #f8f8f2;
   --fg-dim: #bbbdbd;
-  --fg-muted: #636f88;
+  --fg-muted: #7b869b;
   --fg-faint: #7f8287;
   --border: #464c55;
   --border-mid: #5a5f67;
@@ -960,7 +960,7 @@
   --accent-fg: #fff;
   --success: #a3be8c;
   --success-hover: #b4caa0;
-  --danger: #81a1c1;
+  --danger: #be2740;
   --highlight: #3c4549;
   --selection: #526c7a;
   --shadow: #000;
@@ -981,15 +981,15 @@
   --editor-type: #88c0d0;
   --editor-string: #a3be8c;
   --editor-variable: #81a1c1;
-  --editor-comment: #636f88;
+  --editor-comment: #7b869b;
 }
 
-/* One Dark (prism-one-dark.css) */
+/* One Dark (prism-one-dark.css) - One Dark theme for prism.js / Based on Atom's One Dark theme: https://github.com/atom/atom/tree/master/packages/one-dark-syntax */
 :root[data-theme="one-dark"] {
   color-scheme: dark;
   --brand: #8f5da2;
   --brand-fg: #fff;
-  --brand-fg-muted: #ddcee3;
+  --brand-fg-muted: #e9dfec;
   --brand-hover: rgba(255, 255, 255, 0.15);
   --bg: #282c34;
   --bg-panel: #2c3038;
@@ -1000,7 +1000,7 @@
   --fg: #b8bec9;
   --fg-text: #abb2bf;
   --fg-dim: #848a95;
-  --fg-muted: #5c6370;
+  --fg-muted: #757b86;
   --fg-faint: #5c626c;
   --border: #383c45;
   --border-mid: #454953;
@@ -1030,15 +1030,15 @@
   --editor-type: #d19a66;
   --editor-string: #98c379;
   --editor-variable: #61afef;
-  --editor-comment: #5c6370;
+  --editor-comment: #757b86;
 }
 
-/* Pojoaque (prism-pojoaque.css) */
+/* Pojoaque (prism-pojoaque.css) - Pojoaque Style by Jason Tate / http://web-cms-designs.com/ftopict-10-pojoaque-style-for-highlight-js-code-highlighter.html / Based on Solarized Style from http://ethanschoonover.com/solarized / http://softwaremaniacs.org/media/soft/highligh */
 :root[data-theme="pojoaque"] {
   color-scheme: dark;
   --brand: #8c3a15;
   --brand-fg: #fff;
-  --brand-fg-muted: #ddc4b9;
+  --brand-fg-muted: #e8d8d0;
   --brand-hover: rgba(255, 255, 255, 0.15);
   --bg: #181914;
   --bg-panel: #1e1e18;
@@ -1082,12 +1082,12 @@
   --editor-comment: #586e75;
 }
 
-/* Shades of Purple (prism-shades-of-purple.css) */
+/* Shades of Purple (prism-shades-of-purple.css) - Shades of Purple Theme for Prism.js / @author Ahmad Awais <https://twitter.com/MrAhmadAwais/> / @support Follow/tweet at https://twitter.com/MrAhmadAwais/ */
 :root[data-theme="shades-of-purple"] {
   color-scheme: dark;
-  --brand: #b07116;
+  --brand: #a26814;
   --brand-fg: #fff;
-  --brand-fg-muted: #e7d4b9;
+  --brand-fg-muted: #ece1d0;
   --brand-hover: rgba(255, 255, 255, 0.15);
   --bg: #1e1e3f;
   --bg-panel: #222545;
@@ -1107,7 +1107,7 @@
   --accent-fg: #fff;
   --success: #a5ff90;
   --success-hover: #a4ffa6;
-  --danger: #ff9d00;
+  --danger: #be2740;
   --highlight: #2e3949;
   --selection: #766526;
   --shadow: #000;
@@ -1131,12 +1131,12 @@
   --editor-comment: #b362ff;
 }
 
-/* Solarized Dark Atom (prism-solarized-dark-atom.css) */
+/* Solarized Dark Atom (prism-solarized-dark-atom.css) - Solarized dark atom theme for `prism.js` / Based on Atom's `atom-dark` theme: https://github.com/atom/atom-dark-syntax / @author Pranay Chauhan (@PranayChauhan2516) */
 :root[data-theme="solarized-dark-atom"] {
   color-scheme: dark;
   --brand: #19699b;
   --brand-fg: #fff;
-  --brand-fg-muted: #bad2e1;
+  --brand-fg-muted: #d1e1eb;
   --brand-hover: rgba(255, 255, 255, 0.15);
   --bg: #002b36;
   --bg-panel: #042e39;
@@ -1146,8 +1146,8 @@
   --bg-sorted: #06394d;
   --fg: #96a4a6;
   --fg-text: #839496;
-  --fg-dim: #5c7579;
-  --fg-muted: #586e75;
+  --fg-dim: #698084;
+  --fg-muted: #657a80;
   --fg-faint: #34555c;
   --border: #103842;
   --border-mid: #1d424b;
@@ -1177,48 +1177,48 @@
   --editor-type: #ffffb6;
   --editor-string: #859900;
   --editor-variable: #268bd2;
-  --editor-comment: #586e75;
+  --editor-comment: #657a80;
 }
 
-/* Synthwave 84 (prism-synthwave84.css) */
+/* Synthwave 84 (prism-synthwave84.css) - Synthwave '84 Theme originally by Robb Owen [@Robb0wen] for Visual Studio Code / Demo: https://marc.dev/demo/prism-synthwave84 / Ported for PrismJS by Marc Backes [@themarcba] */
 :root[data-theme="synthwave-84"] {
   color-scheme: dark;
-  --brand: #ada6a8;
+  --brand: #716e6f;
   --brand-fg: #fff;
-  --brand-fg-muted: #e6e4e5;
+  --brand-fg-muted: #e3e2e2;
   --brand-hover: rgba(255, 255, 255, 0.15);
   --bg: #2a2139;
-  --bg-panel: #30213c;
-  --bg-hover: #382241;
-  --bg-active: #452248;
-  --bg-form: #34213f;
+  --bg-panel: #30223d;
+  --bg-hover: #382342;
+  --bg-active: #452449;
+  --bg-form: #34223f;
   --bg-sorted: #4a4256;
-  --fg: #fa4ab9;
-  --fg-text: #f92aad;
-  --fg-dim: #bb278a;
+  --fg: #fa58bf;
+  --fg-text: #f93bb4;
+  --fg-dim: #c552a0;
   --fg-muted: #8e8e8e;
-  --fg-faint: #7d2567;
-  --border: #432247;
-  --border-mid: #582353;
-  --border-strong: #722462;
+  --fg-faint: #7d2b6a;
+  --border: #432448;
+  --border-mid: #582754;
+  --border-strong: #722a64;
   --accent: #fdfdfd;
   --accent-fg: #fff;
-  --success: #008000;
-  --success-hover: #326f23;
-  --danger: #e2777a;
+  --success: #7eb54e;
+  --success-hover: #979d62;
+  --danger: #be2740;
   --highlight: #432c38;
-  --selection: #7e7987;
+  --selection: #746f7c;
   --shadow: #000;
   --overlay: rgba(0, 0, 0, 0.6);
   --editor-bg: #2a2139;
-  --editor-fg: #f92aad;
+  --editor-fg: #f93bb4;
   --editor-gutter-bg: var(--bg);
   --editor-gutter-fg: var(--fg-faint);
-  --editor-active-line: #362240;
-  --editor-gutter-active-line: #362240;
-  --editor-selection: #532350;
+  --editor-active-line: #362340;
+  --editor-gutter-active-line: #362340;
+  --editor-selection: #532652;
   --editor-cursor: #f4eee4;
-  --editor-bracket: #68245c;
+  --editor-bracket: #68295e;
   --editor-keyword: #f4eee4;
   --editor-operator: #67cdcc;
   --editor-constant: #e2777a;
@@ -1234,7 +1234,7 @@
   color-scheme: dark;
   --brand: #427096;
   --brand-fg: #fff;
-  --brand-fg-muted: #c6d4e0;
+  --brand-fg-muted: #d9e2ea;
   --brand-hover: rgba(255, 255, 255, 0.15);
   --bg: #1e1e1e;
   --bg-panel: #232323;
@@ -1254,7 +1254,7 @@
   --accent-fg: #fff;
   --success: #b5cea8;
   --success-hover: #bbcfb1;
-  --danger: #ce9178;
+  --danger: #be2740;
   --highlight: #332c29;
   --selection: #6a6a56;
   --shadow: #000;
@@ -1278,12 +1278,12 @@
   --editor-comment: #6a9955;
 }
 
-/* Xonokai (prism-xonokai.css) */
+/* Xonokai (prism-xonokai.css) - xonokai theme for JavaScript, CSS and HTML / based on: https://github.com/MoOx/sass-prism-theme-base by Maxime Thirouin ~ MoOx --> http://moox.fr/ , which is Loosely based on Monokai textmate theme by http://www.monokai.nl/ / license: MIT;  */
 :root[data-theme="xonokai"] {
   color-scheme: dark;
   --brand: #aa3560;
   --brand-fg: #fff;
-  --brand-fg-muted: #e6c2cf;
+  --brand-fg-muted: #eed7df;
   --brand-hover: rgba(255, 255, 255, 0.15);
   --bg: #2a2a2a;
   --bg-panel: #2c2f30;
@@ -1294,7 +1294,7 @@
   --fg: #8bdfea;
   --fg-text: #76d9e6;
   --fg-dim: #5fa5ae;
-  --fg-muted: #6f705e;
+  --fg-muted: #7b7b6b;
   --fg-faint: #487075;
   --border: #333f41;
   --border-mid: #3b5153;
@@ -1324,15 +1324,15 @@
   --editor-type: #e6d06c;
   --editor-string: #e6d06c;
   --editor-variable: #ffffff;
-  --editor-comment: #6f705e;
+  --editor-comment: #7b7b6b;
 }
 
-/* Z-Touch (prism-z-touch.css) */
+/* Z-Touch (prism-z-touch.css) - Z-Toch / by Zeel Codder / https://github.com/zeel-codder */
 :root[data-theme="z-touch"] {
   color-scheme: dark;
-  --brand: #569598;
+  --brand: #497e81;
   --brand-fg: #fff;
-  --brand-fg-muted: #ccdfe0;
+  --brand-fg-muted: #dbe5e6;
   --brand-hover: rgba(255, 255, 255, 0.15);
   --bg: #0a143c;
   --bg-panel: #111b42;
@@ -1376,12 +1376,12 @@
   --editor-comment: #637777;
 }
 
-/* Atelier Sulphurpool Light (prism-base16-ateliersulphurpool.light.css) */
+/* Atelier Sulphurpool Light (prism-base16-ateliersulphurpool.light.css) - Name:       Base16 Atelier Sulphurpool Light / Author:     Bram de Haan (http://atelierbram.github.io/syntax-highlighting/atelier-schemes/sulphurpool) / Prism template by Bram de Haan (http://atelierbram.github.io/syntax-highlighting/prism/ */
 :root[data-theme="atelier-sulphurpool-light"] {
   color-scheme: light;
   --brand: #81712b;
   --brand-fg: #fff;
-  --brand-fg-muted: #d9d4bf;
+  --brand-fg-muted: #e6e3d5;
   --brand-hover: rgba(255, 255, 255, 0.15);
   --bg: #f5f7ff;
   --bg-panel: #f0f3fb;
@@ -1391,7 +1391,7 @@
   --bg-sorted: #ede7e0;
   --fg: #505773;
   --fg-text: #5e6687;
-  --fg-dim: #8b92ab;
+  --fg-dim: #767b90;
   --fg-muted: #898ea4;
   --fg-faint: #b9bdcf;
   --border: #e3e6f1;
@@ -1399,11 +1399,11 @@
   --border-strong: #c0c4d5;
   --accent: #c08b30;
   --accent-fg: #fff;
-  --success: #22a2c9;
-  --success-hover: #2e96bc;
-  --danger: #c94922;
+  --success: #6b9a42;
+  --success-hover: #689050;
+  --danger: #be2740;
   --highlight: #dcedf9;
-  --selection: #e0ccac;
+  --selection: #966d25;
   --shadow: #c8ccdb;
   --overlay: rgba(0, 0, 0, 0.3);
   --editor-bg: #f5f7ff;
@@ -1425,12 +1425,12 @@
   --editor-comment: #898ea4;
 }
 
-/* Coldark Cold (prism-coldark-cold.css) */
+/* Coldark Cold (prism-coldark-cold.css) - Coldark Theme for Prism.js / Theme variation: Cold / Tested with HTML, CSS, JS, JSON, PHP, YAML, Bash script / @author Armand Philippot <contact@armandphilippot.com> / @homepage https://github.com/ArmandPhilippot/coldark-prism / @license MI */
 :root[data-theme="coldark-cold"] {
   color-scheme: light;
   --brand: #783700;
   --brand-fg: #fff;
-  --brand-fg-muted: #d7c3b3;
+  --brand-fg-muted: #e4d7cc;
   --brand-hover: rgba(255, 255, 255, 0.15);
   --bg: #e3eaf2;
   --bg-panel: #dde4ec;
@@ -1452,7 +1452,7 @@
   --success-hover: #115b08;
   --danger: #c22f2e;
   --highlight: #cadbd5;
-  --selection: #ba8cd5;
+  --selection: #7c00aa;
   --shadow: #a4acb5;
   --overlay: rgba(0, 0, 0, 0.3);
   --editor-bg: #e3eaf2;
@@ -1474,12 +1474,12 @@
   --editor-comment: #3c526d;
 }
 
-/* Coy without shadows (prism-coy-without-shadows.css) */
+/* Coy without shadows (prism-coy-without-shadows.css) - Coy without shadows / Based on Tim Shedor's Coy theme for prism.js / Author: RunDevelopment */
 :root[data-theme="coy-without-shadows"] {
   color-scheme: light;
   --brand: #136c8a;
   --brand-fg: #fff;
-  --brand-fg-muted: #b8d3dc;
+  --brand-fg-muted: #d0e2e8;
   --brand-hover: rgba(255, 255, 255, 0.15);
   --bg: #fdfdfd;
   --bg-panel: #f5f5f5;
@@ -1501,7 +1501,7 @@
   --success-hover: #267d08;
   --danger: #c92c2c;
   --highlight: #e4f1e0;
-  --selection: #abd69c;
+  --selection: #288408;
   --shadow: #b1b1b1;
   --overlay: rgba(0, 0, 0, 0.3);
   --editor-bg: #fdfdfd;
@@ -1523,45 +1523,45 @@
   --editor-comment: #7d8b99;
 }
 
-/* Duotone Light (prism-duotone-light.css) */
+/* Duotone Light (prism-duotone-light.css) - Name:   Duotone Light / Author: Simurai, adapted from DuoTone themes for Atom (http://simurai.com/projects/2016/01/01/duotone-themes) / Conversion: Bram de Haan (http://atelierbram.github.io/Base2Tone-prism/output/prism/prism-base2tone-morn */
 :root[data-theme="duotone-light"] {
   color-scheme: light;
   --brand: #566b98;
   --brand-fg: #fff;
-  --brand-fg-muted: #ccd3e0;
+  --brand-fg-muted: #dde1ea;
   --brand-hover: rgba(255, 255, 255, 0.15);
   --bg: #faf8f5;
-  --bg-panel: #f6f5f4;
-  --bg-hover: #f0f1f2;
-  --bg-active: #e8eaf0;
-  --bg-form: #f3f3f3;
+  --bg-panel: #f5f4f2;
+  --bg-hover: #efeeef;
+  --bg-active: #e5e6ea;
+  --bg-form: #f2f1f1;
   --bg-sorted: #efe9df;
-  --fg: #617aad;
-  --fg-text: #728fcb;
-  --fg-dim: #9bafd8;
-  --fg-muted: #b6ad9a;
-  --fg-faint: #c4cee4;
-  --border: #eaebf0;
-  --border-mid: #dce1ec;
-  --border-strong: #cad3e6;
+  --fg: #4c5e86;
+  --fg-text: #596f9e;
+  --fg-dim: #74819b;
+  --fg-muted: #8e8679;
+  --fg-faint: #bac1d2;
+  --border: #e7e8eb;
+  --border-mid: #d7dae2;
+  --border-strong: #c2c8d7;
   --accent: #b29762;
   --accent-fg: #fff;
-  --success: #728fcb;
-  --success-hover: #728fcb;
-  --danger: #896724;
+  --success: #6b9a42;
+  --success-hover: #679154;
+  --danger: #be2740;
   --highlight: #eaebf0;
-  --selection: #ddd1ba;
-  --shadow: #d1d9e8;
+  --selection: #806d46;
+  --shadow: #cacfdb;
   --overlay: rgba(0, 0, 0, 0.3);
   --editor-bg: #faf8f5;
-  --editor-fg: #728fcb;
+  --editor-fg: #596f9e;
   --editor-gutter-bg: var(--bg);
   --editor-gutter-fg: var(--fg-faint);
-  --editor-active-line: #f2f2f2;
-  --editor-gutter-active-line: #f2f2f2;
-  --editor-selection: #dfe3ed;
+  --editor-active-line: #f0f0f0;
+  --editor-gutter-active-line: #f0f0f0;
+  --editor-selection: #dadde4;
   --editor-cursor: #728fcb;
-  --editor-bracket: #d1d9e8;
+  --editor-bracket: #cacfdb;
   --editor-keyword: #728fcb;
   --editor-operator: #063289;
   --editor-constant: #063289;
@@ -1569,15 +1569,15 @@
   --editor-type: #896724;
   --editor-string: #728fcb;
   --editor-variable: #93abdc;
-  --editor-comment: #b6ad9a;
+  --editor-comment: #8e8679;
 }
 
-/* GHColors (prism-ghcolors.css) */
+/* GHColors (prism-ghcolors.css) - GHColors theme by Avi Aryan (http://aviaryan.in) / Inspired by Github syntax coloring */
 :root[data-theme="ghcolors"] {
   color-scheme: light;
   --brand: #007ba4;
   --brand-fg: #fff;
-  --brand-fg-muted: #b3d7e4;
+  --brand-fg-muted: #cce5ed;
   --brand-hover: rgba(255, 255, 255, 0.15);
   --bg: #ffffff;
   --bg-panel: #f9f9f9;
@@ -1588,18 +1588,18 @@
   --fg: #30312c;
   --fg-text: #393a34;
   --fg-dim: #747571;
-  --fg-muted: #999988;
+  --fg-muted: #8d8d7d;
   --fg-faint: #b0b0ae;
   --border: #e7e7e7;
   --border-mid: #d3d4d2;
   --border-strong: #babab8;
   --accent: #9a050f;
   --accent-fg: #fff;
-  --success: #36acaa;
-  --success-hover: #379592;
+  --success: #6b9a42;
+  --success-hover: #61873f;
   --danger: #9a050f;
   --highlight: #fce2ed;
-  --selection: #d79b9f;
+  --selection: #9a050f;
   --shadow: #c4c4c2;
   --overlay: rgba(0, 0, 0, 0.3);
   --editor-bg: #ffffff;
@@ -1618,15 +1618,15 @@
   --editor-type: #00a4db;
   --editor-string: #e3116c;
   --editor-variable: #36acaa;
-  --editor-comment: #999988;
+  --editor-comment: #8d8d7d;
 }
 
-/* Gruvbox Light (prism-gruvbox-light.css) */
+/* Gruvbox Light (prism-gruvbox-light.css) - Gruvbox light theme / Based on Gruvbox: https://github.com/morhetz/gruvbox / Adapted from PrismJS gruvbox-dark theme: https://github.com/schnerring/prism-themes/blob/master/themes/prism-gruvbox-dark.css / @author Michael Schnerring (https:/ */
 :root[data-theme="gruvbox-light"] {
   color-scheme: light;
   --brand: #760005;
   --brand-fg: #fff;
-  --brand-fg-muted: #d6b3b4;
+  --brand-fg-muted: #e4cccd;
   --brand-hover: rgba(255, 255, 255, 0.15);
   --bg: #f9f5d7;
   --bg-panel: #f3efd2;
@@ -1644,11 +1644,11 @@
   --border-strong: #b7b39f;
   --accent: #b57614;
   --accent-fg: #fff;
-  --success: #797403;
-  --success-hover: #6d680d;
-  --danger: #9d0006;
+  --success: #6b9a42;
+  --success-hover: #628640;
+  --danger: #be2740;
   --highlight: #eae6be;
-  --selection: #dec289;
+  --selection: #9a6411;
   --shadow: #c0bca7;
   --overlay: rgba(0, 0, 0, 0.3);
   --editor-bg: #f9f5d7;
@@ -1675,40 +1675,40 @@
   color-scheme: light;
   --brand: #5d3abf;
   --brand-fg: #fff;
-  --brand-fg-muted: #cec4ec;
+  --brand-fg-muted: #dfd8f2;
   --brand-hover: rgba(255, 255, 255, 0.15);
   --bg: #fafafa;
-  --bg-panel: #f7f7f8;
-  --bg-hover: #f3f4f5;
-  --bg-active: #eceff0;
-  --bg-form: #f5f6f6;
+  --bg-panel: #f6f6f6;
+  --bg-hover: #f0f1f1;
+  --bg-active: #e7e9ea;
+  --bg-form: #f3f3f4;
   --bg-sorted: #e7e0fb;
-  --fg: #7a8b94;
-  --fg-text: #90a4ae;
-  --fg-dim: #b0bec5;
-  --fg-muted: #aabfc9;
-  --fg-faint: #d0d8dc;
-  --border: #edf0f1;
-  --border-mid: #e3e7e9;
-  --border-strong: #d5dcdf;
+  --fg: #576469;
+  --fg-text: #66767c;
+  --fg-dim: #7b8589;
+  --fg-muted: #798990;
+  --fg-faint: #bfc5c8;
+  --border: #e8eaeb;
+  --border-mid: #d9ddde;
+  --border-strong: #c6ccce;
   --accent: #7c4dff;
   --accent-fg: #fff;
-  --success: #39adb5;
-  --success-hover: #4aabb4;
+  --success: #6b9a42;
+  --success-hover: #6a934e;
   --danger: #e53935;
   --highlight: #faf0e2;
-  --selection: #c8b5fc;
-  --shadow: #dae0e3;
+  --selection: #7c4dff;
+  --shadow: #ced2d4;
   --overlay: rgba(0, 0, 0, 0.3);
   --editor-bg: #fafafa;
-  --editor-fg: #90a4ae;
+  --editor-fg: #66767c;
   --editor-gutter-bg: var(--bg);
   --editor-gutter-fg: var(--fg-faint);
-  --editor-active-line: #f4f5f5;
-  --editor-gutter-active-line: #f4f5f5;
+  --editor-active-line: #f1f2f2;
+  --editor-gutter-active-line: #f1f2f2;
   --editor-selection: #cceae7;
   --editor-cursor: #7c4dff;
-  --editor-bracket: #dae0e3;
+  --editor-bracket: #ced2d4;
   --editor-keyword: #7c4dff;
   --editor-operator: #39adb5;
   --editor-constant: #f76d47;
@@ -1716,15 +1716,15 @@
   --editor-type: #6182b8;
   --editor-string: #f6a434;
   --editor-variable: #e53935;
-  --editor-comment: #aabfc9;
+  --editor-comment: #798990;
 }
 
-/* One Light (prism-one-light.css) */
+/* One Light (prism-one-light.css) - One Light theme for prism.js / Based on Atom's One Light theme: https://github.com/atom/atom/tree/master/packages/one-light-syntax */
 :root[data-theme="one-light"] {
   color-scheme: light;
   --brand: #7d1d7b;
   --brand-fg: #fff;
-  --brand-fg-muted: #d8bbd7;
+  --brand-fg-muted: #e5d2e5;
   --brand-hover: rgba(255, 255, 255, 0.15);
   --bg: #fafafa;
   --bg-panel: #f4f4f4;
@@ -1735,7 +1735,7 @@
   --fg: #303138;
   --fg-text: #383a42;
   --fg-dim: #727479;
-  --fg-muted: #a0a1a7;
+  --fg-muted: #87888e;
   --fg-faint: #acadb0;
   --border: #e3e3e4;
   --border-mid: #cfd0d2;
@@ -1746,7 +1746,7 @@
   --success-hover: #4b8c4c;
   --danger: #e45649;
   --highlight: #e6efe5;
-  --selection: #b0c6f7;
+  --selection: #3b6edf;
   --shadow: #c0c0c3;
   --overlay: rgba(0, 0, 0, 0.3);
   --editor-bg: #fafafa;
@@ -1765,15 +1765,15 @@
   --editor-type: #b76b01;
   --editor-string: #50a14f;
   --editor-variable: #4078f2;
-  --editor-comment: #a0a1a7;
+  --editor-comment: #87888e;
 }
 
-/* VS (prism-vs.css) */
+/* VS (prism-vs.css) - VS theme by Andrew Lock (https://andrewlock.net) / Inspired by Visual Studio syntax coloring */
 :root[data-theme="vs"] {
   color-scheme: light;
   --brand: #0000bf;
   --brand-fg: #fff;
-  --brand-fg-muted: #b3b3ec;
+  --brand-fg-muted: #ccccf2;
   --brand-hover: rgba(255, 255, 255, 0.15);
   --bg: #ffffff;
   --bg-panel: #f9f9f9;
@@ -1791,11 +1791,11 @@
   --border-strong: #babab8;
   --accent: #393a34;
   --accent-fg: #fff;
-  --success: #36acaa;
-  --success-hover: #379592;
+  --success: #6b9a42;
+  --success-hover: #61873f;
   --danger: #9a050f;
   --highlight: #f4e3e3;
-  --selection: #b0b0ae;
+  --selection: #393a34;
   --shadow: #c4c4c2;
   --overlay: rgba(0, 0, 0, 0.3);
   --editor-bg: #ffffff;

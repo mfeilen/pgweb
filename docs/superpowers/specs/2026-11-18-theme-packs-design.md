@@ -81,7 +81,7 @@ For each `prism/prism-*.css` (skipping `*.min.css`):
    | `--brand-fg` | `#fff` |
    | `--brand-fg-muted` | mix(#fff, brand, 0.3) |
    | `--brand-hover` | `rgba(255, 255, 255, 0.15)` |
-   | `--accent` | function colour, else keyword |
+   | `--accent` | function colour, else keyword (same as `--editor-function`) |
    | `--accent-fg` | `#fff` |
    | `--success` | inserted, else string |
    | `--success-hover` | mix(success, fg, 0.2) |
@@ -97,7 +97,7 @@ For each `prism/prism-*.css` (skipping `*.min.css`):
    | `--editor-keyword` | keyword, else fg |
    | `--editor-operator` | operator, else punctuation, else keyword |
    | `--editor-constant` | number, else boolean, else constant, else keyword |
-   | `--editor-function` | function, else property, else fg |
+   | `--editor-function` | function, else property, else keyword |
    | `--editor-type` | class-name, else builtin, else attr-name, else function |
    | `--editor-string` | string, else fg |
    | `--editor-variable` | variable, else tag, else attr-name, else keyword |
@@ -107,14 +107,29 @@ For each `prism/prism-*.css` (skipping `*.min.css`):
    Every token fallback chain ends in a value, so a block never has a
    missing variable. An `OVERRIDES` map keyed by theme id allows hand fixes.
 
+   Legibility floors (added after review; `ensureContrast` mixes a colour
+   toward black or toward the text direction in 8 % steps until the floor
+   holds): `--fg-text` and `--fg` at least 4.5:1 on `--bg`, `--fg-dim` 3.5:1,
+   `--fg-muted` 3:1, `--success` 3:1 on `--bg`; `--brand` and `--selection`
+   at least 4.5:1 under white text, `--danger` 3:1; `--brand-fg-muted` 3:1 on
+   `--brand`. `--danger` takes the theme's `deleted` colour only when it is
+   red (hue within 25 degrees of 0) and legible, `--success` the `inserted`
+   or `string` colour only when green (hue 60 to 180), else pgweb's own
+   `#be2740` / `#7eb54e` adjusted to the pack. `--accent` falls back to the
+   keyword colour, `--editor-function` too (not to the foreground).
+   `script/themes/packs.test.mjs` asserts these floors on the committed
+   output and that the three generated id lists agree; a Go test does the
+   same for `themePackIDs` against `theme-packs.js`.
+
 6. Outputs, all generated with a "do not edit" header naming the source
    file and the converter:
    - `static/css/theme-packs.css`: `:root[data-theme="<id>"] { color-scheme: ...; ... }` per theme.
    - `static/js/theme-packs.js`: `var themePacks = [{ id, name, dark }]`,
      dark group first, each group alphabetical by name.
    - `pkg/command/theme_packs.go`: `var themePackIDs = []string{...}`.
-   - `docs/themes.md`: table (name, id, group, source file) plus the licence
-     note (Prism themes, MIT, authors in the source files).
+   - `docs/themes.md`: table (name, id, group, source file, credits copied
+     from the source file's header comment) plus the prism-themes MIT licence
+     text; each CSS block comment repeats the credits.
 
 ### Server
 

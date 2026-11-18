@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
-import { parseColor, hex, mix, isDark, slug, convertTheme, VARIABLES } from "./convert.mjs";
+import { parseColor, hex, mix, isDark, slug, convertTheme, VARIABLES, contrast, hue, ensureContrast, credits } from "./convert.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const fixture = readFileSync(path.join(here, "fixtures", "prism-fixture.css"), "utf8");
@@ -83,3 +83,29 @@ function luminanceOf(h) {
   const lin = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; };
   return 0.2126 * lin(c.r) + 0.7152 * lin(c.g) + 0.0722 * lin(c.b);
 }
+
+test("ensureContrast darkens until the floor is met", () => {
+  const c = ensureContrast("#e8c7ff", "#ffffff", 4.5, "#000000");
+  assert.ok(contrast(c, "#ffffff") >= 4.5);
+  assert.equal(ensureContrast("#000000", "#ffffff", 4.5, "#000000"), "#000000", "already fine stays untouched");
+});
+
+test("hue classifies red and green", () => {
+  assert.ok(hue("#be2740") <= 25 || hue("#be2740") >= 330);
+  assert.ok(hue("#7eb54e") >= 60 && hue("#7eb54e") <= 180);
+  assert.equal(hue("#808080"), null);
+});
+
+test("credits come from the first comment block", () => {
+  assert.match(credits(fixture), /^Fixture theme for the converter tests/);
+  assert.equal(credits("code { color: red }"), "");
+});
+
+test("semantic colours fall back when a theme's tokens do not read as red/green", () => {
+  const odd = fixture.replace("color: #e06c75;", "color: #d6e7ff;").replace("color: #98c379;", "color: #e60067;");
+  const theme = convertTheme(odd, { id: "odd", name: "Odd" });
+  const h = hue(theme.vars["--danger"]);
+  assert.ok(h <= 25 || h >= 330, "danger is red");
+  const g = hue(theme.vars["--success"]);
+  assert.ok(g >= 60 && g <= 180, "success is green");
+});

@@ -751,9 +751,9 @@
   visibility: visible;
 }
 
-.dropdown-menu > .active > a,
-.dropdown-menu > .active > a:hover,
-.dropdown-menu > .active > a:focus {
+.theme-menu > .active > a,
+.theme-menu > .active > a:hover,
+.theme-menu > .active > a:focus {
   background: var(--bg-active);
   color: var(--fg-text);
 }

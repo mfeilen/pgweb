@@ -166,6 +166,7 @@ func ParseOptions(args []string) (Options, error) {
 			}
 		}
 	}
+	opts.Theme = strings.ToLower(opts.Theme)
 	if !validTheme(opts.Theme) {
 		return opts, fmt.Errorf("invalid theme %q: expected auto, light, dark or an id from docs/themes.md", opts.Theme)
 	}

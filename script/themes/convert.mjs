@@ -168,6 +168,41 @@ export function luminance(h) {
 
 export function isDark(h) { return luminance(h) < 0.5; }
 
+/** WCAG contrast ratio between two hex colours. */
+export function contrast(a, b) {
+  const la = luminance(a), lb = luminance(b);
+  return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
+}
+
+/** Hue in degrees, or null for greys. */
+export function hue(h) {
+  const { r, g, b } = parseColor(h);
+  const max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min;
+  if (d === 0) return null;
+  const x = max === r ? ((g - b) / d) % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
+  return ((x * 60) + 360) % 360;
+}
+
+/** Mixes `color` toward `towards` in small steps until it reaches `floor` against `against`. */
+export function ensureContrast(color, against, floor, towards) {
+  let c = color;
+  for (let i = 0; i < 40 && contrast(c, against) < floor; i++) c = mix(c, towards, 0.08);
+  return c;
+}
+
+/** First comment block of a stylesheet, as credit lines (author, copyright). */
+export function credits(css) {
+  const m = css.match(/^\s*\/\*([\s\S]*?)\*\//);
+  if (!m) return "";
+  return m[1].split("\n")
+    .map((l) => l.replace(/^\s*\*+\s?/, "").trim())
+    .filter((l) => l && !/^[-=*]+$/.test(l))
+    .slice(0, 6)
+    .join(" / ")
+    .replace(/\*\//g, "* /")
+    .slice(0, 240);
+}
+
 /** First colour found inside a value such as a gradient. */
 function firstColorIn(value, over) {
   if (!value) return null;
@@ -217,7 +252,7 @@ export function parseRules(css) {
   for (const src = stripAtRules(stripComments(css)); (m = re.exec(src)); ) {
     // Attribute selectors appear with single or double quotes; normalise to double.
     const selectors = m[1].split(",").map((s) => s.trim().replace(/\s+/g, " ").replace(/'/g, '"')).filter(Boolean);
-    const decls = {};
+    const decls = Object.create(null);
     for (const d of m[2].split(";")) {
       const idx = d.indexOf(":");
       if (idx < 0) continue;
@@ -234,13 +269,13 @@ const TOKEN = /^\.token\.([a-z0-9-]+)$/;
 
 /** Collects base, selection and token declarations; the last rule wins. */
 function collect(rules) {
-  const state = { base: {}, selection: {}, token: {} };
+  const state = { base: Object.create(null), selection: Object.create(null), token: Object.create(null) };
   for (const rule of rules) {
     for (const sel of rule.selectors) {
       let slot = null;
       if (BASE.test(sel)) slot = state.base;
       else if (SELECTION.test(sel) || /\[class\*="language-"\].*::(-moz-)?selection$/.test(sel)) slot = state.selection;
-      else if (TOKEN.test(sel)) slot = state.token[sel.match(TOKEN)[1]] ||= {};
+      else if (TOKEN.test(sel)) slot = state.token[sel.match(TOKEN)[1]] ||= Object.create(null);
       if (!slot) continue;
       for (const [k, v] of Object.entries(rule.decls)) slot[k] = v;
     }
@@ -268,66 +303,80 @@ export function convertTheme(css, { id, name, file = "" }) {
 
   const token = (...names) => {
     for (const n of names) {
-      const c = state.token[n] && parseColor(state.token[n].color, bg);
+      const c = Object.hasOwn(state.token, n) && parseColor(state.token[n].color, bg);
       if (c) return hex(c);
     }
     return null;
   };
 
-  const keyword  = token("keyword", "atrule", "important") || fg;
-  const fn       = token("function", "property", "attr-name") || fg;
-  const string   = token("string", "attr-value", "char") || fg;
-  const comment  = token("comment", "prolog") || mix(fg, bgHex, 0.45);
+  const toward   = dark ? "#ffffff" : "#000000";   // direction that raises contrast on this background
+  const fgText   = ensureContrast(fg, bgHex, 4.5, toward);
+  const keyword  = token("keyword", "atrule", "important") || fgText;
+  const fn       = token("function", "property", "attr-name") || keyword;
+  const string   = token("string", "attr-value", "char") || fgText;
+  const comment  = ensureContrast(token("comment", "prolog") || mix(fgText, bgHex, 0.45), bgHex, 3, toward);
   const operator = token("operator", "punctuation") || keyword;
   const constant = token("number", "boolean", "constant") || keyword;
   const type     = token("class-name", "builtin", "attr-name", "selector") || fn;
   const variable = token("variable", "tag", "attr-name", "property") || keyword;
-  const success  = token("inserted") || string;
-  const danger   = token("deleted") || token("important") || "#be2740";
   const accent   = fn;
 
+  // Semantic colours: a theme's "inserted"/"deleted" tokens are used only when
+  // they read as green/red and are legible; otherwise pgweb's own colours,
+  // nudged toward the pack's text colour until they stand out on its background.
+  const isRed = (h) => { const x = hue(h); return x !== null && (x <= 25 || x >= 330); };
+  const isGreen = (h) => { const x = hue(h); return x !== null && x >= 60 && x <= 180; };
+  const deleted = token("deleted");
+  const inserted = token("inserted") || token("string");
+  const danger = ensureContrast(deleted && isRed(deleted) && contrast(deleted, "#ffffff") >= 3 ? deleted : "#be2740", "#ffffff", 3, "#000000");
+  const success = ensureContrast(inserted && isGreen(inserted) && contrast(inserted, bgHex) >= 3 ? inserted : "#7eb54e", bgHex, 3, toward);
+
+  // Header bar and selected row carry white text.
   let brand = dark ? mix(keyword, bgHex, 0.35) : mix(keyword, "#000000", 0.25);
-  for (let i = 0; i < 12 && luminance(brand) >= 0.4; i++) brand = mix(brand, "#000000", 0.15);
+  brand = ensureContrast(brand, "#ffffff", 4.5, "#000000");
+  let brandFgMuted = mix("#ffffff", brand, 0.2);
+  if (contrast(brandFgMuted, brand) < 3) brandFgMuted = mix("#ffffff", brand, 0.1);
+  const selection = ensureContrast(dark ? mix(bgHex, accent, 0.4) : accent, "#ffffff", 4.5, "#000000");
 
   const selBg = parseColor(state.selection.background || state.selection["background-color"], bg);
 
   const vars = {
     "--brand": brand,
     "--brand-fg": "#fff",
-    "--brand-fg-muted": mix("#ffffff", brand, 0.3),
+    "--brand-fg-muted": brandFgMuted,
     "--brand-hover": "rgba(255, 255, 255, 0.15)",
     "--bg": bgHex,
-    "--bg-panel": mix(bgHex, fg, 0.03),
-    "--bg-hover": mix(bgHex, fg, 0.07),
-    "--bg-active": mix(bgHex, fg, 0.13),
-    "--bg-form": mix(bgHex, fg, 0.05),
+    "--bg-panel": mix(bgHex, fgText, 0.03),
+    "--bg-hover": mix(bgHex, fgText, 0.07),
+    "--bg-active": mix(bgHex, fgText, 0.13),
+    "--bg-form": mix(bgHex, fgText, 0.05),
     "--bg-sorted": mix(bgHex, fn, 0.15),
-    "--fg": mix(fg, dark ? "#ffffff" : "#000000", 0.15),
-    "--fg-text": fg,
-    "--fg-dim": mix(fg, bgHex, 0.3),
+    "--fg": mix(fgText, toward, 0.15),
+    "--fg-text": fgText,
+    "--fg-dim": ensureContrast(mix(fgText, bgHex, 0.3), bgHex, 3.5, toward),
     "--fg-muted": comment,
-    "--fg-faint": mix(fg, bgHex, 0.6),
-    "--border": mix(bgHex, fg, 0.12),
-    "--border-mid": mix(bgHex, fg, 0.22),
-    "--border-strong": mix(bgHex, fg, 0.35),
+    "--fg-faint": mix(fgText, bgHex, 0.6),
+    "--border": mix(bgHex, fgText, 0.12),
+    "--border-mid": mix(bgHex, fgText, 0.22),
+    "--border-strong": mix(bgHex, fgText, 0.35),
     "--accent": accent,
     "--accent-fg": "#fff",
     "--success": success,
-    "--success-hover": mix(success, fg, 0.2),
+    "--success-hover": mix(success, fgText, 0.2),
     "--danger": danger,
     "--highlight": mix(bgHex, string, 0.12),
-    "--selection": mix(bgHex, accent, 0.4),
-    "--shadow": dark ? "#000" : mix(bgHex, fg, 0.3),
+    "--selection": selection,
+    "--shadow": dark ? "#000" : mix(bgHex, fgText, 0.3),
     "--overlay": dark ? "rgba(0, 0, 0, 0.6)" : "rgba(0, 0, 0, 0.3)",
     "--editor-bg": bgHex,
-    "--editor-fg": fg,
+    "--editor-fg": fgText,
     "--editor-gutter-bg": "var(--bg)",
     "--editor-gutter-fg": "var(--fg-faint)",
-    "--editor-active-line": mix(bgHex, fg, 0.06),
-    "--editor-gutter-active-line": mix(bgHex, fg, 0.06),
-    "--editor-selection": selBg && hex(selBg) !== bgHex ? hex(selBg) : mix(bgHex, fg, 0.2),
+    "--editor-active-line": mix(bgHex, fgText, 0.06),
+    "--editor-gutter-active-line": mix(bgHex, fgText, 0.06),
+    "--editor-selection": selBg && hex(selBg) !== bgHex ? hex(selBg) : mix(bgHex, fgText, 0.2),
     "--editor-cursor": keyword,
-    "--editor-bracket": mix(bgHex, fg, 0.3),
+    "--editor-bracket": mix(bgHex, fgText, 0.3),
     "--editor-keyword": keyword,
     "--editor-operator": operator,
     "--editor-constant": constant,
@@ -336,10 +385,10 @@ export function convertTheme(css, { id, name, file = "" }) {
     "--editor-string": string,
     "--editor-variable": variable,
     "--editor-comment": comment,
-    ...(OVERRIDES[id] || {}),
+    ...(Object.hasOwn(OVERRIDES, id) ? OVERRIDES[id] : {}),
   };
 
-  return { id, name, dark, vars, file };
+  return { id, name, dark, vars, file, credits: credits(css) };
 }
 
 // ---------------------------------------------------------------- outputs
@@ -351,7 +400,7 @@ ${kind} re-run the converter instead.`;
 function renderCss(themes) {
   const out = ["/*", HEADER(" *"), " */", ""];
   for (const t of themes) {
-    out.push(`/* ${t.name} (${t.file}) */`);
+    out.push(`/* ${t.name} (${t.file})${t.credits ? " - " + t.credits : ""} */`);
     out.push(`:root[data-theme="${t.id}"] {`);
     out.push(`  color-scheme: ${t.dark ? "dark" : "light"};`);
     for (const name of VARIABLES) out.push(`  ${name}: ${t.vars[name]};`);
@@ -370,8 +419,9 @@ function renderGo(themes) {
   return `${HEADER("//")}\n\npackage command\n\n// themePackIDs lists the selectable theme packs (see docs/themes.md).\nvar themePackIDs = []string{\n${ids.join("\n")}\n}\n`;
 }
 
-function renderDocs(themes) {
-  const rows = themes.map((t) => `| ${t.name} | \`${t.id}\` | ${t.dark ? "dark" : "light"} | \`${t.file}\` |`);
+function renderDocs(themes, licence) {
+  const cell = (v) => String(v).replace(/\|/g, "\\|");
+  const rows = themes.map((t) => `| ${t.name} | \`${t.id}\` | ${t.dark ? "dark" : "light"} | \`${t.file}\` | ${cell(t.credits)} |`);
   return `# Themes
 
 ${themes.length} theme packs, selectable in the UI (button in the top right corner)
@@ -379,8 +429,8 @@ or as the server default with \`--theme <id>\` / \`PGWEB_THEME=<id>\`. The built
 choices \`auto\`, \`light\` and \`dark\` come first; \`auto\` follows the operating
 system.
 
-| Name | Id | Group | Source |
-|---|---|---|---|
+| Name | Id | Group | Source | Credits (header of the source file) |
+|---|---|---|---|---|
 ${rows.join("\n")}
 
 ## Origin and licence
@@ -390,8 +440,17 @@ syntax-highlighting themes collected in
 [mfeilen/macdown3000-themes](https://github.com/mfeilen/macdown3000-themes)
 (\`prism/\`), which are unchanged copies from
 [PrismJS/prism-themes](https://github.com/PrismJS/prism-themes), MIT licence.
-The author of each theme is named in the header of its source file. Only the
-derived colour variables ship with pgweb, not the Prism stylesheets.
+The credits column repeats the header comment of each source file. Only the
+derived colour variables ship with pgweb, not the Prism stylesheets. The
+converter clamps a few colours for legibility (text at least 4.5:1 on the
+background, white text on the header bar and selected row at least 4.5:1,
+error/success colours in red/green).
+
+### prism-themes licence
+
+\`\`\`
+${licence.trim()}
+\`\`\`
 
 To regenerate after a change in the source repository:
 
@@ -416,7 +475,7 @@ export function main(argv) {
   for (const file of readdirSync(dir).sort()) {
     if (!file.endsWith(".css") || file.endsWith(".min.css")) continue;
     const base = file.replace(/\.css$/, "");
-    const name = NAMES[base];
+    const name = Object.hasOwn(NAMES, base) ? NAMES[base] : null;
     if (!name) { console.warn(`skipping ${file}: no display name in NAMES`); continue; }
     const css = readFileSync(path.join(dir, file), "utf8");
     themes.push(convertTheme(css, { id: slug(name), name, file }));
@@ -431,7 +490,9 @@ export function main(argv) {
   write("static/css/theme-packs.css", renderCss(sorted));
   write("static/js/theme-packs.js", renderJs(sorted));
   write("pkg/command/theme_packs.go", renderGo(sorted));
-  write("docs/themes.md", renderDocs(sorted));
+  let licence = "MIT License (see https://github.com/PrismJS/prism-themes/blob/master/LICENSE)";
+  try { licence = readFileSync(path.join(dir, "LICENSE"), "utf8"); } catch {}
+  write("docs/themes.md", renderDocs(sorted, licence));
   console.log(`${sorted.length} themes: ${sorted.filter((t) => t.dark).length} dark, ${sorted.filter((t) => !t.dark).length} light`);
   return 0;
 }
