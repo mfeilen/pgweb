@@ -20,6 +20,11 @@ import (
 func integrationClient(t *testing.T) *Client {
 	t.Helper()
 
+	// Same rule as TestAll: the Windows CI job has no PostgreSQL service.
+	if onWindows() {
+		t.Skip("Database tests on Windows are not supported")
+	}
+
 	url := os.Getenv("PGWEB_TEST_URL")
 	if url == "" {
 		url = fmt.Sprintf(
