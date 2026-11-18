@@ -4,6 +4,7 @@ Current [release](https://github.com/sosedoff/pgweb/releases) is `0.17.0`.
 
 ## Next
 
+- `NEW` Upgrade the frontend to Bootstrap 5.3.3 (Bootstrap components follow the active theme through its CSS variables), GH-785
 - `FIX` bytea columns are encoded by column type with the configured binary codec (printable values too, text columns never), and `PGWEB_BINARY_CODEC` is honoured
 - `SECURITY` Disable Multipath TCP (MPTCP) listeners via `godebug multipathtcp=0` to remove the published attack path for Linux kernel CVE-2026-98432
 - `SECURITY` Bump golang.org/x/crypto to 0.59.x (includes the ssh fixes from 0.52.0), GH-867

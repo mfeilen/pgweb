@@ -375,10 +375,6 @@
   background: var(--success);
 }
 
-#input .actions .btn-default:hover {
-  background: var(--fg-faint);
-}
-
 #input .actions .btn:last-child {
   margin-right: 0px;
 }
@@ -430,8 +426,9 @@
   font-size: 12px;
   width: 100px;
   float: left;
-  line-height: 30px;
+  line-height: 28px;
   height: 30px;
+  padding: 0 1.5rem 0 0.5rem;
   margin-right: 8px;
   outline: none;
 }
@@ -462,7 +459,7 @@
   margin-right: 8px;
 }
 
-#pagination .filters .btn-default {
+#pagination .filters .btn-outline-secondary {
   float: left;
   outline: none;
 }
@@ -767,8 +764,12 @@
   z-index: 901;
 }
 
-.theme-switcher.open .theme-toggle {
+.theme-switcher .theme-toggle.show {
   background: var(--brand-hover);
+}
+
+.theme-toggle.dropdown-toggle::after {
+  display: none;
 }
 
 .theme-menu {
@@ -791,9 +792,8 @@
   visibility: visible;
 }
 
-.theme-menu > .active > a,
-.theme-menu > .active > a:hover,
-.theme-menu > .active > a:focus {
+.theme-menu .dropdown-item.active,
+.theme-menu .dropdown-item:active {
   background: var(--bg-active);
   color: var(--fg-text);
 }
@@ -847,10 +847,6 @@
   display: none;
 }
 
-.bookmarks {
-  display: none;
-}
-
 .connection-settings {
   width: 600px;
   margin: 0px auto;
@@ -891,7 +887,7 @@
   -webkit-border-radius: 4px;
 }
 
-.connection-settings form p.help-block {
+.connection-settings form p.form-text {
   font-size: 12px;
 }
 
@@ -1038,44 +1034,58 @@
 }
 
 /* -------------------------------------------------------------------------- */
-/* Bootstrap colour overrides, driven by the theme variables                   */
-/* Values for the light theme equal Bootstrap 3 defaults.                     */
+/* Bootstrap 5: its CSS variables are fed from the theme variables, so every  */
+/* component follows the active theme. Sizes keep the look of Bootstrap 3.    */
 /* -------------------------------------------------------------------------- */
 
 body {
+  --bs-body-font-size: 0.875rem;
+  --bs-border-radius: 0.25rem;
+  --bs-body-bg: var(--bg);
+  --bs-body-color: var(--fg-text);
+  --bs-emphasis-color: var(--fg);
+  --bs-secondary-color: var(--fg-muted);
+  --bs-tertiary-color: var(--fg-faint);
+  --bs-secondary-bg: var(--bg-active);
+  --bs-tertiary-bg: var(--bg-form);
+  --bs-border-color: var(--border-mid);
+  --bs-link-color: var(--accent);
+  --bs-link-hover-color: var(--accent);
   background: var(--bg);
   color: var(--fg-text);
 }
 
-.btn-default {
-  background: var(--bg);
-  border-color: var(--border-mid);
-  color: var(--fg-text);
+.btn-sm {
+  --bs-btn-padding-y: 0.3125rem;
+  --bs-btn-padding-x: 0.625rem;
+  --bs-btn-font-size: 0.75rem;
 }
 
-.btn-default:hover,
-.btn-default:focus,
-.btn-default:active,
-.btn-default.active,
-.open > .dropdown-toggle.btn-default {
-  background: var(--bg-active);
-  border-color: var(--border-mid);
-  color: var(--fg-text);
-}
-
-.btn-default.disabled,
-.btn-default[disabled],
-fieldset[disabled] .btn-default {
-  background: var(--bg);
-  border-color: var(--border-mid);
-  color: var(--fg-text);
+.btn-outline-secondary {
+  --bs-btn-color: var(--fg-text);
+  --bs-btn-bg: var(--bg);
+  --bs-btn-border-color: var(--border-mid);
+  --bs-btn-hover-color: var(--fg-text);
+  --bs-btn-hover-bg: var(--bg-active);
+  --bs-btn-hover-border-color: var(--border-mid);
+  --bs-btn-active-color: var(--fg-text);
+  --bs-btn-active-bg: var(--bg-active);
+  --bs-btn-active-border-color: var(--border-strong);
+  --bs-btn-disabled-color: var(--fg-muted);
+  --bs-btn-disabled-bg: var(--bg);
+  --bs-btn-disabled-border-color: var(--border-mid);
 }
 
 .form-control,
-select {
-  background: var(--bg);
+.form-select {
+  background-color: var(--bg);
   border-color: var(--border-mid);
   color: var(--fg-text);
+}
+
+.form-select {
+  padding: .375rem 1.5rem .375rem .75rem;
+  background-position: right 0.25rem center;
 }
 
 ::placeholder {
@@ -1083,32 +1093,46 @@ select {
 }
 
 .dropdown-menu {
-  background: var(--bg);
-  border-color: var(--border-mid);
+  --bs-dropdown-font-size: 0.875rem;
+  --bs-dropdown-bg: var(--bg);
+  --bs-dropdown-color: var(--fg-text);
+  --bs-dropdown-border-color: var(--border-mid);
+  --bs-dropdown-link-color: var(--fg-text);
+  --bs-dropdown-link-hover-color: var(--fg-text);
+  --bs-dropdown-link-hover-bg: var(--bg-form);
+  --bs-dropdown-link-active-color: var(--fg-text);
+  --bs-dropdown-link-active-bg: var(--bg-active);
+  --bs-dropdown-divider-bg: var(--border);
+  --bs-dropdown-header-color: var(--fg-muted);
 }
 
-.dropdown-menu > li > a {
-  color: var(--fg-text);
-}
-
-.dropdown-menu > li > a:hover,
-.dropdown-menu > li > a:focus {
-  background: var(--bg-form);
-  color: var(--fg-text);
-}
-
-.dropdown-menu .divider {
-  background: var(--border);
+#sidebar .dropdown-menu {
+  line-height: var(--bs-body-line-height);
 }
 
 pre {
+  padding: 9.5px;
   background: var(--bg-form);
-  border-color: var(--border-mid);
+  border: 1px solid var(--border-mid);
+  border-radius: 4px;
   color: var(--fg-text);
 }
 
-.help-block {
+.form-text {
   color: var(--fg-dim);
+}
+
+.connection-settings form .row {
+  padding-bottom: 1rem;
+}
+
+.connection-settings form .col-form-label {
+  text-align: end;
+  font-weight: bolder;
+}
+
+.connection-bookmarks-group {
+  display: none;
 }
 
 hr {

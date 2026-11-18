@@ -131,10 +131,16 @@ function applyTheme(choice) {
     find("i").
     attr("class", "fa " + (icons[choice] || "fa-paint-brush"));
 
-  $(".theme-menu li").removeClass("active");
+  $(".theme-menu li, .theme-menu a[data-theme]").removeClass("active");
   $(".theme-menu a[data-theme]").filter(function() {
     return $(this).attr("data-theme") === choice;
-  }).parent().addClass("active");
+  }).addClass("active").parent().addClass("active");
+
+  // Bootstrap's own components follow the effective theme
+  var effective = document.documentElement.getAttribute("data-theme");
+  var pack = themePack(effective);
+  var isDark = effective === "dark" || (pack !== null && pack.dark);
+  document.documentElement.setAttribute("data-bs-theme", isDark ? "dark" : "light");
 }
 
 function initTheme() {
@@ -155,7 +161,7 @@ function buildThemeMenus() {
 
   function item(id, name) {
     return $("<li/>").append(
-      $("<a/>", { href: "#", "data-theme": id }).
+      $("<a/>", { href: "#", "class": "dropdown-item", "data-theme": id }).
         append($("<i/>", { "class": "fa fa-check" })).
         append(document.createTextNode(" " + name))
     );
@@ -164,8 +170,8 @@ function buildThemeMenus() {
   function group(title, dark) {
     var packs = $.grep(themePackList, function(p) { return p.dark === dark; });
     if (!packs.length) return;
-    menu.append($("<li/>", { "class": "divider" }));
-    menu.append($("<li/>", { "class": "dropdown-header" }).text(title));
+    menu.append($("<li/>").append($("<hr/>", { "class": "dropdown-divider" })));
+    menu.append($("<li/>").append($("<h6/>", { "class": "dropdown-header" }).text(title)));
     $.each(packs, function(i, p) { menu.append(item(p.id, p.name)); });
   }
 
@@ -386,7 +392,7 @@ function loadLocalQueries() {
 
     resp.forEach(function(item) {
       var title = item.title || item.id;
-      $("<li><a href='#' class='load-local-query' data-id='" + item.id + "'>" + title + "</a></li>").appendTo(container);
+      $("<li><a href='#' class='dropdown-item load-local-query' data-id='" + item.id + "'>" + title + "</a></li>").appendTo(container);
     });
 
     if (resp.length > 0) $("#load-local-query").prop("disabled", "");
@@ -811,7 +817,7 @@ function buildTable(results, sortColumn, sortOrder, options) {
 
     // Add row action button
     if (action) {
-      r += "<td><a class='btn btn-xs btn-" + action.style + " row-action' data-action='" + action.name + "' data-value='" + row[action.dataColumn] + "' href='#'>" + action.title + "</a></td>";
+      r += "<td><a class='btn btn-sm btn-" + action.style + " row-action' data-action='" + action.name + "' data-value='" + row[action.dataColumn] + "' href='#'>" + action.title + "</a></td>";
     }
 
     rows += "<tr>" + r + "</tr>";
@@ -1182,7 +1188,7 @@ function showActivityPanel() {
 
 function showQueryProgressMessage() {
   $("#run, #explain-dropdown-toggle, #csv, #json, #xml, #load-local-query").prop("disabled", true);
-  $("#explain-dropdown").removeClass("open");
+  $("#explain-dropdown .dropdown-toggle, #explain-dropdown .dropdown-menu").removeClass("show");
   $("#query_progress").show();
 }
 
@@ -1636,14 +1642,14 @@ function showConnectionSettings() {
         $("<option value='" + key + "''>" + key + "</option>").appendTo("#connection_bookmarks");
       }
 
-      $(".bookmarks").show();
+      $(".connection-bookmarks-group").show();
     }
     else {
       if (appFeatures.bookmarks_only) {
         $("#connection_error").html("Running in <b>bookmarks-only</b> mode but <b>NO</b> bookmarks configured.").show();
         $(".open-connection").hide();
       } else {
-        $(".bookmarks").hide();
+        $(".connection-bookmarks-group").hide();
       }
     }
   });
@@ -2453,6 +2459,7 @@ $(document).ready(function() {
   // answered.
   buildThemeMenus();
   applyTheme(currentThemeChoice());
+  $(".dropdown-menu a").addClass("dropdown-item");
 
   bindInputResizeEvents();
   bindContentModalEvents();
