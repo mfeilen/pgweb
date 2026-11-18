@@ -87,11 +87,14 @@ Or set environment variable:
 PGWEB_THEME=dark pgweb
 ```
 
-`--dark-mode` and `PGWEB_DARK_MODE=true|false|auto` are shorthands.
+`--dark-mode` and `PGWEB_DARK_MODE=true|false|auto` are shorthands. Besides
+`auto`, `light` and `dark`, 37 colour themes converted from Prism are
+available by id, for example `--theme dracula`; see
+[docs/themes.md](docs/themes.md) for the list.
 
-Each user can still cycle auto, dark and light with the button in the top
-right corner; the browser remembers that choice and it takes precedence over
-the server default.
+Each user can pick any theme from the menu behind the button in the top right
+corner; the browser remembers that choice and it takes precedence over the
+server default.
 
 ### Row editing
 

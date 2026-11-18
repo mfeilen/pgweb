@@ -10,16 +10,18 @@
     // flashes light: the choice stored in this browser, else the operating
     // system setting. See applyTheme() in app.js.
     try {
-      var themeChoice = localStorage.getItem("pgweb_theme");
-      if (themeChoice !== "dark" && themeChoice !== "light") themeChoice = "auto";
+      var themeChoice = localStorage.getItem("pgweb_theme") || "auto";
       var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+      var theme = themeChoice;
+      if (themeChoice === "auto") theme = prefersDark ? "dark" : "light";
       document.documentElement.setAttribute("data-theme-choice", themeChoice);
-      document.documentElement.setAttribute("data-theme", themeChoice === "dark" || (themeChoice === "auto" && prefersDark) ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
     } catch (e) {}
   </script>
   <link rel="stylesheet" href="static/css/bootstrap.css"></link>
   <link rel="stylesheet" href="static/css/font-awesome.css"></link>
   <link rel="stylesheet" href="static/css/themes.css"></link>
+  <link rel="stylesheet" href="static/css/theme-packs.css"></link>
   <link rel="stylesheet" href="static/css/app.css"></link>
   <link rel="icon" type="image/x-icon" href="static/img/icon.ico" />
   <script type="text/javascript" src="static/js/jquery.js"></script>
@@ -31,6 +33,7 @@
   <script type="text/javascript" src="static/js/bootstrap-dropdown.js"></script>
   <script type="text/javascript" src="static/js/utils.js"></script>
   <script type="text/javascript" src="static/js/bootstrap3-typeahead.min.js"></script>
+  <script type="text/javascript" src="static/js/theme-packs.js"></script>
   <script type="text/javascript" src="static/js/app.js"></script>
   <script type="text/javascript" src="static/js/base64.js"></script>
 </head>
@@ -52,7 +55,10 @@
         <a href="#" id="edit_connection" class="btn btn-default btn-sm"><i class="fa fa-database"></i> Connect</a>
         <a href="#" id="close_connection" class="btn btn-default btn-sm">Disconnect</a>
       </div>
-      <a href="#" class="theme-toggle" title="Theme: auto, follows the system setting. Click for dark"><i class="fa fa-adjust"></i></a>
+      <div class="btn-group theme-switcher">
+        <a href="#" class="theme-toggle dropdown-toggle" data-toggle="dropdown" title="Theme"><i class="fa fa-adjust"></i></a>
+        <ul class="dropdown-menu dropdown-menu-right theme-menu" role="menu"></ul>
+      </div>
     </div>
     <div id="sidebar">
       <div class="current-database">
@@ -196,7 +202,10 @@
   </div>
 
   <div id="connection_window">
-    <a href="#" class="theme-toggle" title="Theme: auto, follows the system setting. Click for dark"><i class="fa fa-adjust"></i></a>
+    <div class="btn-group theme-switcher">
+        <a href="#" class="theme-toggle dropdown-toggle" data-toggle="dropdown" title="Theme"><i class="fa fa-adjust"></i></a>
+        <ul class="dropdown-menu dropdown-menu-right theme-menu" role="menu"></ul>
+      </div>
     <div class="connection-settings">
       <div class="header">
         <h1>pgweb</h1>

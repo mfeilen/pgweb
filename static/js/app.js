@@ -74,56 +74,110 @@ function getSessionId() {
   return id;
 }
 
-// Theme handling. A choice is "auto", "dark" or "light". Precedence: the
-// choice stored in this browser, then the server default (features.theme from
-// /api/info), then "auto". "auto" follows the operating system setting and
-// updates live when that setting changes.
-var themeChoices = ["auto", "dark", "light"];
-var themeMedia   = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+// Theme handling. A choice is "auto", "dark", "light" or the id of a theme
+// pack (static/js/theme-packs.js, generated). Precedence: the choice stored
+// in this browser, then the server default (features.theme from /api/info),
+// then "auto". "auto" follows the operating system setting and updates live.
+var themeBuiltins = ["auto", "dark", "light"];
+var themePackList = window.themePacks || [];
+var themeMedia    = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+
+function themePack(id) {
+  for (var i = 0; i < themePackList.length; i++) {
+    if (themePackList[i].id === id) return themePackList[i];
+  }
+  return null;
+}
+
+function themeKnown(choice) {
+  return themeBuiltins.indexOf(choice) >= 0 || themePack(choice) !== null;
+}
 
 function storedTheme() {
   var choice = storageGet("localStorage", "pgweb_theme");
-  return themeChoices.indexOf(choice) >= 0 ? choice : null;
+  return themeKnown(choice) ? choice : null;
 }
 
 function currentThemeChoice() {
   var choice = document.documentElement.getAttribute("data-theme-choice");
-  return themeChoices.indexOf(choice) >= 0 ? choice : "auto";
+  return themeKnown(choice) ? choice : "auto";
 }
 
-// Resolves a choice to the theme actually rendered
+// Resolves a choice to the data-theme value actually rendered
 function resolveTheme(choice) {
   if (choice === "dark" || choice === "light") return choice;
+  if (themePack(choice)) return choice;
   return themeMedia && themeMedia.matches ? "dark" : "light";
 }
 
+function themeTitle(choice) {
+  var pack = themePack(choice);
+  if (pack) return "Theme: " + pack.name;
+  return {
+    auto:  "Theme: auto, follows the system setting",
+    dark:  "Theme: dark",
+    light: "Theme: light"
+  }[choice];
+}
+
 function applyTheme(choice) {
-  var titles = {
-    auto:  "Theme: auto, follows the system setting. Click for dark",
-    dark:  "Theme: dark. Click for light",
-    light: "Theme: light. Click for auto"
-  };
   var icons = { auto: "fa-adjust", dark: "fa-moon-o", light: "fa-sun-o" };
 
   document.documentElement.setAttribute("data-theme-choice", choice);
   document.documentElement.setAttribute("data-theme", resolveTheme(choice));
 
   $(".theme-toggle").
-    attr("title", titles[choice]).
+    attr("title", themeTitle(choice)).
     find("i").
-    attr("class", "fa " + icons[choice]);
+    attr("class", "fa " + (icons[choice] || "fa-paint-brush"));
+
+  $(".theme-menu li").removeClass("active");
+  $(".theme-menu a[data-theme]").filter(function() {
+    return $(this).attr("data-theme") === choice;
+  }).parent().addClass("active");
 }
 
 function initTheme() {
-  var serverDefault = themeChoices.indexOf(appFeatures.theme) >= 0 ? appFeatures.theme : "auto";
+  var serverDefault = themeKnown(appFeatures.theme) ? appFeatures.theme : "auto";
   applyTheme(storedTheme() || serverDefault);
 }
 
-function toggleTheme() {
-  var next = themeChoices[(themeChoices.indexOf(currentThemeChoice()) + 1) % themeChoices.length];
+function chooseTheme(choice) {
+  if (!themeKnown(choice)) return;
+  storageSet("localStorage", "pgweb_theme", choice);
+  applyTheme(choice);
+}
 
-  storageSet("localStorage", "pgweb_theme", next);
-  applyTheme(next);
+// Fills every .theme-menu with the built-in choices and the theme packs,
+// dark packs first, then light packs.
+function buildThemeMenus() {
+  var menu = $("<ul/>");
+
+  function item(id, name) {
+    return $("<li/>").append(
+      $("<a/>", { href: "#", "data-theme": id }).
+        append($("<i/>", { "class": "fa fa-check" })).
+        append(document.createTextNode(" " + name))
+    );
+  }
+
+  function group(title, dark) {
+    var packs = $.grep(themePackList, function(p) { return p.dark === dark; });
+    if (!packs.length) return;
+    menu.append($("<li/>", { "class": "divider" }));
+    menu.append($("<li/>", { "class": "dropdown-header" }).text(title));
+    $.each(packs, function(i, p) { menu.append(item(p.id, p.name)); });
+  }
+
+  menu.append(item("auto", "Auto (system)"));
+  menu.append(item("light", "Light"));
+  menu.append(item("dark", "Dark"));
+  group("Dark themes", true);
+  group("Light themes", false);
+
+  $(".theme-menu").each(function() {
+    $(this).empty().append(menu.children().clone());
+  });
 }
 
 if (themeMedia && themeMedia.addEventListener) {
@@ -2290,8 +2344,10 @@ function bindContentModalEvents() {
 }
 
 $(document).ready(function() {
-  // Sync the toggle icons with the choice the head script already applied;
-  // initTheme() adds the server default once /api/info has answered.
+  // Build the theme menus and sync them with the choice the head script
+  // already applied; initTheme() adds the server default once /api/info has
+  // answered.
+  buildThemeMenus();
   applyTheme(currentThemeChoice());
 
   bindInputResizeEvents();
@@ -2412,9 +2468,9 @@ $(document).ready(function() {
     sortTableRows($(this), sortOrder);
   });
 
-  $(".theme-toggle").on("click", function(e) {
+  $(document).on("click", ".theme-menu a[data-theme]", function(e) {
     e.preventDefault();
-    toggleTheme();
+    chooseTheme($(this).attr("data-theme"));
   });
 
   $("#refresh_tables").on("click", function() {
