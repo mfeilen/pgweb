@@ -9,6 +9,9 @@
   right: 0;
   height: 50px;
   background: var(--brand);
+  /* A fixed element is its own stacking context; without a z-index the
+     theme menu hanging out of the bar would end up under #body. */
+  z-index: 902;
 }
 
 #nav > ul {
@@ -699,7 +702,7 @@
 }
 
 #connection_window {
-  z-index: 3;
+  z-index: 903;
   position: fixed;
   background: var(--bg);
   top: 0px;
