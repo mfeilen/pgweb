@@ -38,6 +38,7 @@
   --highlight:      #ffe;
   --selection:      #3874d7;
   --shadow:         #ddd;
+  --overlay:        rgba(0, 0, 0, 0.3);
 
   /* Editor (Ace "Tomorrow") */
   --editor-bg:                 #FFFFFF;
@@ -89,6 +90,7 @@
   --highlight:      #2a2d24;
   --selection:      #2f5fa8;
   --shadow:         #000;
+  --overlay:        rgba(0, 0, 0, 0.6);
 
   /* Editor (Ace "Tomorrow Night") */
   --editor-bg:                 #1D1F21;

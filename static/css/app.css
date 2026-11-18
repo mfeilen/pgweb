@@ -1035,3 +1035,197 @@ pre {
 hr {
   border-color: var(--border);
 }
+
+/* -------------------------------------------------------------------------- */
+/* Row editing and multi-column filters                                       */
+/* -------------------------------------------------------------------------- */
+
+#pagination .row-actions {
+  float: left;
+  display: none;
+  margin-left: 8px;
+}
+
+#pagination .row-actions .btn {
+  outline: none;
+}
+
+#error_banner.success {
+  background-color: var(--success-hover);
+}
+
+#active_filters {
+  display: none;
+  padding: 6px 9px;
+  font-size: 12px;
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border);
+}
+
+#active_filters .filter-chip {
+  display: inline-block;
+  padding: 2px 8px;
+  margin: 2px 6px 2px 0px;
+  border: 1px solid var(--border-mid);
+  border-radius: 3px;
+  background: var(--bg);
+  color: var(--fg-text);
+  white-space: nowrap;
+}
+
+#active_filters .filter-chip .op {
+  color: var(--success);
+  font-weight: bold;
+  margin: 0px 4px;
+}
+
+#active_filters .filter-chip .remove-filter {
+  margin-left: 6px;
+  color: var(--fg-faint);
+  cursor: pointer;
+}
+
+#active_filters .filter-chip .remove-filter:hover {
+  color: var(--danger);
+}
+
+#active_filters .clear-filters {
+  color: var(--fg-muted);
+  cursor: pointer;
+  margin-left: 4px;
+}
+
+#results td.cell-modified > div {
+  box-shadow: inset 2px 0px 0px 0px var(--success);
+}
+
+#results td.cell-editing {
+  padding: 0px !important;
+}
+
+#results input.cell-editor {
+  width: 100%;
+  min-width: 120px;
+  border: 1px solid var(--success);
+  outline: none;
+  font-size: 12px;
+  line-height: 20px;
+  padding: 1px 8px;
+  margin: 0px;
+  /* normalize.css sets color:inherit on inputs, which picks up the white text
+     of the selected row. Force readable colors regardless of row state. */
+  color: var(--fg-text) !important;
+  background: var(--bg) !important;
+  -webkit-text-fill-color: var(--fg-text);
+}
+
+#results input.cell-editor:disabled {
+  color: var(--fg-muted) !important;
+  background: var(--bg-active) !important;
+  -webkit-text-fill-color: var(--fg-muted);
+}
+
+#row_modal {
+  display: none;
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  z-index: 1000;
+  background: var(--overlay);
+}
+
+#row_modal .row-modal-dialog {
+  position: relative;
+  width: 560px;
+  max-width: 92%;
+  max-height: 86%;
+  margin: 60px auto;
+  background: var(--bg);
+  border-radius: 3px;
+  box-shadow: 0px 2px 12px var(--overlay);
+  display: flex;
+  flex-direction: column;
+}
+
+#row_modal .row-modal-header {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  font-weight: bold;
+  font-size: 13px;
+}
+
+#row_modal .row-modal-header .fa-times {
+  float: right;
+  color: var(--fg-faint);
+  cursor: pointer;
+  line-height: 18px;
+}
+
+#row_modal .row-modal-body {
+  padding: 10px 14px;
+  overflow-y: auto;
+  font-size: 12px;
+}
+
+#row_modal .row-modal-body .field {
+  margin-bottom: 8px;
+}
+
+#row_modal .row-modal-body label {
+  display: block;
+  font-size: 11px;
+  color: var(--fg-dim);
+  margin-bottom: 2px;
+  font-weight: normal;
+}
+
+#row_modal .row-modal-body label .type {
+  color: var(--fg-muted);
+  margin-left: 4px;
+}
+
+#row_modal .row-modal-body label .pk {
+  color: var(--success);
+  margin-left: 4px;
+}
+
+#row_modal .row-modal-body input[type=text],
+#row_modal .row-modal-body select {
+  width: 100%;
+  height: 28px;
+  font-size: 12px;
+  padding: 2px 6px;
+  border: 1px solid var(--border-mid);
+  outline: none;
+}
+
+#row_modal .row-modal-body .null-toggle {
+  font-size: 11px;
+  color: var(--fg-muted);
+  margin-top: 2px;
+  font-weight: normal;
+}
+
+#row_modal .row-modal-body .summary {
+  font-size: 12px;
+  word-break: break-all;
+}
+
+#row_modal .row-modal-footer {
+  padding: 10px 14px;
+  border-top: 1px solid var(--border);
+  text-align: right;
+}
+
+#row_modal .row-modal-footer .btn {
+  margin-left: 6px;
+}
+
+#row_modal .row-modal-error {
+  float: left;
+  color: var(--danger);
+  font-size: 12px;
+  line-height: 26px;
+}

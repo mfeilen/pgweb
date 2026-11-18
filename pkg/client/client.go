@@ -9,6 +9,7 @@ import (
 	"reflect"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -43,6 +44,8 @@ type Client struct {
 	queryTimeout     time.Duration
 	readonly         bool
 	closed           bool
+	metadataMu       sync.RWMutex
+	metadataCache    map[string]*TableMetadata
 	External         bool             `json:"external"`
 	History          []history.Record `json:"history"`
 	ConnectionString string           `json:"connection_string"`
@@ -184,6 +187,7 @@ func (client *Client) init() {
 		client.queryTimeout = time.Second * time.Duration(command.Opts.QueryTimeout)
 	}
 
+	client.metadataCache = map[string]*TableMetadata{}
 	client.setServerVersion()
 }
 
@@ -290,19 +294,27 @@ func (client *Client) Function(id string) (*Result, error) {
 }
 
 func (client *Client) TableRows(table string, opts RowsOptions) (*Result, error) {
-	schema, table := getSchemaAndTable(table)
-	sql := fmt.Sprintf(`SELECT * FROM "%s"."%s"`, schema, table)
+	schema, tableName := getSchemaAndTable(table)
+	sql := fmt.Sprintf("SELECT * FROM %s.%s", quoteIdent(schema), quoteIdent(tableName))
 
-	if opts.Where != "" {
-		sql += fmt.Sprintf(" WHERE %s", opts.Where)
+	where, args, err := client.rowsCondition(table, opts)
+	if err != nil {
+		return nil, err
+	}
+
+	if where != "" {
+		sql += fmt.Sprintf(" WHERE %s", where)
 	}
 
 	if opts.SortColumn != "" {
-		if opts.SortOrder == "" {
-			opts.SortOrder = "ASC"
+		// The column is quoted (PostgreSQL rejects unknown names) and the
+		// direction is reduced to one of two keywords, so neither can carry SQL.
+		order := "ASC"
+		if strings.EqualFold(strings.TrimSpace(opts.SortOrder), "DESC") {
+			order = "DESC"
 		}
 
-		sql += fmt.Sprintf(` ORDER BY "%s" %s`, opts.SortColumn, opts.SortOrder)
+		sql += fmt.Sprintf(" ORDER BY %s %s", quoteIdent(opts.SortColumn), order)
 	}
 
 	if opts.Limit > 0 {
@@ -313,7 +325,40 @@ func (client *Client) TableRows(table string, opts RowsOptions) (*Result, error)
 		sql += fmt.Sprintf(" OFFSET %d", opts.Offset)
 	}
 
-	return client.query(sql)
+	return client.query(sql, args...)
+}
+
+// rowsCondition builds the WHERE clause for table browsing requests.
+//
+// The legacy free-form `where` option is preserved as-is for backwards
+// compatibility, while structured filters are always parameterized.
+func (client *Client) rowsCondition(table string, opts RowsOptions) (string, []interface{}, error) {
+	conditions := []string{}
+
+	if opts.Where != "" {
+		conditions = append(conditions, opts.Where)
+	}
+
+	if len(opts.Filters) == 0 {
+		return strings.Join(conditions, " AND "), nil, nil
+	}
+
+	// Metadata is only required to validate filter column names, so it is
+	// fetched lazily to keep plain table browsing at a single query.
+	meta, err := client.TableMetadata(table)
+	if err != nil {
+		return "", nil, err
+	}
+
+	filterSQL, args, err := buildFilters(opts.Filters, meta, 0)
+	if err != nil {
+		return "", nil, err
+	}
+	if filterSQL != "" {
+		conditions = append(conditions, filterSQL)
+	}
+
+	return strings.Join(conditions, " AND "), args, nil
 }
 
 func (client *Client) EstimatedTableRowsCount(table string, opts RowsOptions) (*Result, error) {
@@ -331,7 +376,7 @@ func (client *Client) EstimatedTableRowsCount(table string, opts RowsOptions) (*
 
 func (client *Client) TableRowsCount(table string, opts RowsOptions) (*Result, error) {
 	// Return postgres estimated rows count on empty filter
-	if opts.Where == "" && client.serverType == postgresType {
+	if opts.Where == "" && len(opts.Filters) == 0 && client.serverType == postgresType {
 		res, err := client.EstimatedTableRowsCount(table, opts)
 		if err != nil {
 			return nil, err
@@ -345,11 +390,16 @@ func (client *Client) TableRowsCount(table string, opts RowsOptions) (*Result, e
 	schema, tableName := getSchemaAndTable(table)
 	sql := fmt.Sprintf(`SELECT COUNT(1) FROM "%s"."%s"`, schema, tableName)
 
-	if opts.Where != "" {
-		sql += fmt.Sprintf(" WHERE %s", opts.Where)
+	where, args, err := client.rowsCondition(table, opts)
+	if err != nil {
+		return nil, err
 	}
 
-	return client.query(sql)
+	if where != "" {
+		sql += fmt.Sprintf(" WHERE %s", where)
+	}
+
+	return client.query(sql, args...)
 }
 
 func (client *Client) TableInfo(table string) (*Result, error) {
@@ -405,8 +455,18 @@ func (client *Client) Activity() (*Result, error) {
 	return client.query(query)
 }
 
+// ReadOnly reports whether writes are blocked, either for this connection
+// (bookmark setting) or globally via the --readonly flag.
+func (client *Client) ReadOnly() bool {
+	return client.readonly || command.Opts.ReadOnly
+}
+
 func (client *Client) Query(query string) (*Result, error) {
 	res, err := client.query(query)
+
+	// An ad-hoc statement may have changed the schema; drop the cached table
+	// metadata so row editing and filters see the current definition.
+	client.ResetTableMetadata("")
 
 	// Save history records only if query did not fail
 	if err == nil && !client.hasHistoryRecord(query) {
@@ -478,48 +538,8 @@ func (client *Client) exec(query string, args ...interface{}) (*Result, error) {
 	return &result, nil
 }
 
-func (client *Client) query(query string, args ...interface{}) (*Result, error) {
-	if client.db == nil {
-		return nil, nil
-	}
-
-	// Update the last usage time
-	defer func() {
-		client.lastQueryTime = time.Now().UTC()
-	}()
-
-	// We're going to force-set transaction mode on every query.
-	// This is needed so that default mode could not be changed by user.
-	if command.Opts.ReadOnly || client.readonly {
-		if err := client.SetReadOnlyMode(); err != nil {
-			return nil, err
-		}
-		if containsRestrictedKeywords(query) {
-			return nil, errors.New("query contains keywords not allowed in read-only mode")
-		}
-	}
-
-	action := strings.ToLower(strings.Split(query, " ")[0])
-	hasReturnValues := strings.Contains(strings.ToLower(query), " returning ")
-
-	if (action == "update" || action == "delete") && !hasReturnValues {
-		return client.exec(query, args...)
-	}
-
-	ctx, cancel := client.context()
-	defer cancel()
-
-	queryStart := time.Now()
-	rows, err := client.db.QueryxContext(ctx, query, args...)
-	queryFinish := time.Now()
-	if err != nil {
-		if command.Opts.Debug {
-			log.Println("Failed query:", query, "\nArgs:", args)
-		}
-		return nil, err
-	}
-	defer rows.Close()
-
+// collectResult reads all rows of a result set into a Result.
+func collectResult(rows *sqlx.Rows, queryStart, queryFinish time.Time) (*Result, error) {
 	cols, err := rows.Columns()
 	if err != nil {
 		return nil, err
@@ -566,6 +586,51 @@ func (client *Client) query(query string, args ...interface{}) (*Result, error) 
 	result.PostProcess()
 
 	return &result, nil
+}
+
+func (client *Client) query(query string, args ...interface{}) (*Result, error) {
+	if client.db == nil {
+		return nil, nil
+	}
+
+	// Update the last usage time
+	defer func() {
+		client.lastQueryTime = time.Now().UTC()
+	}()
+
+	// We're going to force-set transaction mode on every query.
+	// This is needed so that default mode could not be changed by user.
+	if command.Opts.ReadOnly || client.readonly {
+		if err := client.SetReadOnlyMode(); err != nil {
+			return nil, err
+		}
+		if containsRestrictedKeywords(query) {
+			return nil, errors.New("query contains keywords not allowed in read-only mode")
+		}
+	}
+
+	action := strings.ToLower(strings.Split(query, " ")[0])
+	hasReturnValues := strings.Contains(strings.ToLower(query), " returning ")
+
+	if (action == "update" || action == "delete") && !hasReturnValues {
+		return client.exec(query, args...)
+	}
+
+	ctx, cancel := client.context()
+	defer cancel()
+
+	queryStart := time.Now()
+	rows, err := client.db.QueryxContext(ctx, query, args...)
+	queryFinish := time.Now()
+	if err != nil {
+		if command.Opts.Debug {
+			log.Println("Failed query:", query, "\nArgs:", args)
+		}
+		return nil, err
+	}
+	defer rows.Close()
+
+	return collectResult(rows, queryStart, queryFinish)
 }
 
 // Close database connection
