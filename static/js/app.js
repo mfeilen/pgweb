@@ -2053,6 +2053,8 @@ function patchRow(tr, row) {
     if (name == null || !(name in row)) return;
 
     $(this).find("> div").html(escapeHtml(row[name]));
+    // The cell viewer and the copy action read the raw value, keep it current
+    $(this).data("rawValue", row[name]);
   });
 
   // The primary key itself may have been updated
