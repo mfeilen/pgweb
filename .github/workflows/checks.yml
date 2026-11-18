@@ -1,11 +1,7 @@
 name: checks
 
+# Tests run on pull requests only, not again on the merge into main.
 on:
-  push:
-    branches:
-      - main
-    paths-ignore:
-      - '**.md'
   pull_request:
     types:
       - opened
