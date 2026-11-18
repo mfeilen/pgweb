@@ -9,16 +9,19 @@
   right: 0;
   height: 50px;
   background: var(--brand);
+  /* A fixed element is its own stacking context; without a z-index the
+     theme menu hanging out of the bar would end up under #body. */
+  z-index: 902;
 }
 
-#nav ul {
+#nav > ul {
   margin: 0px;
   padding: 0px;
   height: 50px;
   display: block;
 }
 
-#nav ul li {
+#nav > ul > li {
   margin: 0px;
   padding: 0px;
   float: left;
@@ -35,22 +38,22 @@
   list-style-type: none;
 }
 
-#nav ul li:first-child {
+#nav > ul > li:first-child {
   margin-left: 0px;
 }
 
-#nav ul li:hover {
+#nav > ul > li:hover {
   color: var(--brand-fg);
 }
 
-#nav ul li.selected {
+#nav > ul > li.selected {
   position: relative;
   background: var(--bg);
   color: var(--fg);
   margin: 0;
 }
 
-#nav ul li.selected:before {
+#nav > ul > li.selected:before {
   content: ' ';
   position: absolute;
   bottom: -1px;
@@ -60,7 +63,7 @@
   background: var(--bg);
 }
 
-#nav ul li.selected:first-child {
+#nav > ul > li.selected:first-child {
   border-left: none;
 }
 
@@ -372,10 +375,6 @@
   background: var(--success);
 }
 
-#input .actions .btn-default:hover {
-  background: var(--fg-faint);
-}
-
 #input .actions .btn:last-child {
   margin-right: 0px;
 }
@@ -427,8 +426,9 @@
   font-size: 12px;
   width: 100px;
   float: left;
-  line-height: 30px;
+  line-height: 28px;
   height: 30px;
+  padding: 0 1.5rem 0 0.5rem;
   margin-right: 8px;
   outline: none;
 }
@@ -459,7 +459,7 @@
   margin-right: 8px;
 }
 
-#pagination .filters .btn-default {
+#pagination .filters .btn-outline-secondary {
   float: left;
   outline: none;
 }
@@ -558,6 +558,10 @@
   text-transform: uppercase;
 }
 
+#results td.json-cell > div {
+  cursor: zoom-in;
+}
+
 #results td textarea {
   color: var(--fg) !important;
   font-size: 12px;
@@ -644,9 +648,45 @@
   padding: 8px;
   white-space: break-spaces;
   background: var(--bg);
+  color: var(--fg-text);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 13px;
+  line-height: 1.55;
   overflow-y: scroll;
   height: 366px;
   box-sizing: border-box;
+}
+
+#content_modal .content .json-key { color: var(--editor-keyword); }
+#content_modal .content .json-string { color: var(--editor-string); }
+#content_modal .content .json-number { color: var(--editor-constant); }
+#content_modal .content .json-literal { color: var(--editor-variable); }
+#content_modal .content .json-punctuation { color: var(--fg-muted); }
+
+#content_modal .json-format {
+  display: none;
+  float: left;
+  margin-right: 8px;
+}
+
+#content_modal .json-format button {
+  height: 24px;
+  padding: 0 8px;
+  border: 1px solid var(--border-mid);
+  background: var(--bg);
+  color: var(--fg-text);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+#content_modal .json-format button + button {
+  border-left: 0;
+}
+
+#content_modal .json-format button.active {
+  background: var(--selection);
+  border-color: var(--selection);
+  color: var(--accent-fg);
 }
 
 #content_modal .title {
@@ -699,7 +739,7 @@
 }
 
 #connection_window {
-  z-index: 3;
+  z-index: 903;
   position: fixed;
   background: var(--bg);
   top: 0px;
@@ -717,10 +757,49 @@
   display: none;
 }
 
-.theme-toggle {
+.theme-switcher {
   position: fixed;
   top: 10px;
   right: 8px;
+  z-index: 901;
+}
+
+.theme-switcher .theme-toggle.show {
+  background: var(--brand-hover);
+}
+
+.theme-toggle.dropdown-toggle::after {
+  display: none;
+}
+
+.theme-menu {
+  min-width: 220px;
+  max-height: 70vh;
+  overflow-y: auto;
+  font-size: 13px;
+}
+
+.theme-menu .dropdown-header {
+  color: var(--fg-muted);
+}
+
+.theme-menu li .fa-check {
+  visibility: hidden;
+  width: 14px;
+}
+
+.theme-menu li.active .fa-check {
+  visibility: visible;
+}
+
+.theme-menu .dropdown-item.active,
+.theme-menu .dropdown-item:active {
+  background: var(--bg-active);
+  color: var(--fg-text);
+}
+
+.theme-toggle {
+  display: block;
   width: 30px;
   height: 30px;
   line-height: 28px;
@@ -768,10 +847,6 @@
   display: none;
 }
 
-.bookmarks {
-  display: none;
-}
-
 .connection-settings {
   width: 600px;
   margin: 0px auto;
@@ -812,7 +887,7 @@
   -webkit-border-radius: 4px;
 }
 
-.connection-settings form p.help-block {
+.connection-settings form p.form-text {
   font-size: 12px;
 }
 
@@ -959,44 +1034,58 @@
 }
 
 /* -------------------------------------------------------------------------- */
-/* Bootstrap colour overrides, driven by the theme variables                   */
-/* Values for the light theme equal Bootstrap 3 defaults.                     */
+/* Bootstrap 5: its CSS variables are fed from the theme variables, so every  */
+/* component follows the active theme. Sizes keep the look of Bootstrap 3.    */
 /* -------------------------------------------------------------------------- */
 
 body {
+  --bs-body-font-size: 0.875rem;
+  --bs-border-radius: 0.25rem;
+  --bs-body-bg: var(--bg);
+  --bs-body-color: var(--fg-text);
+  --bs-emphasis-color: var(--fg);
+  --bs-secondary-color: var(--fg-muted);
+  --bs-tertiary-color: var(--fg-faint);
+  --bs-secondary-bg: var(--bg-active);
+  --bs-tertiary-bg: var(--bg-form);
+  --bs-border-color: var(--border-mid);
+  --bs-link-color: var(--accent);
+  --bs-link-hover-color: var(--accent);
   background: var(--bg);
   color: var(--fg-text);
 }
 
-.btn-default {
-  background: var(--bg);
-  border-color: var(--border-mid);
-  color: var(--fg-text);
+.btn-sm {
+  --bs-btn-padding-y: 0.3125rem;
+  --bs-btn-padding-x: 0.625rem;
+  --bs-btn-font-size: 0.75rem;
 }
 
-.btn-default:hover,
-.btn-default:focus,
-.btn-default:active,
-.btn-default.active,
-.open > .dropdown-toggle.btn-default {
-  background: var(--bg-active);
-  border-color: var(--border-mid);
-  color: var(--fg-text);
-}
-
-.btn-default.disabled,
-.btn-default[disabled],
-fieldset[disabled] .btn-default {
-  background: var(--bg);
-  border-color: var(--border-mid);
-  color: var(--fg-text);
+.btn-outline-secondary {
+  --bs-btn-color: var(--fg-text);
+  --bs-btn-bg: var(--bg);
+  --bs-btn-border-color: var(--border-mid);
+  --bs-btn-hover-color: var(--fg-text);
+  --bs-btn-hover-bg: var(--bg-active);
+  --bs-btn-hover-border-color: var(--border-mid);
+  --bs-btn-active-color: var(--fg-text);
+  --bs-btn-active-bg: var(--bg-active);
+  --bs-btn-active-border-color: var(--border-strong);
+  --bs-btn-disabled-color: var(--fg-muted);
+  --bs-btn-disabled-bg: var(--bg);
+  --bs-btn-disabled-border-color: var(--border-mid);
 }
 
 .form-control,
-select {
-  background: var(--bg);
+.form-select {
+  background-color: var(--bg);
   border-color: var(--border-mid);
   color: var(--fg-text);
+}
+
+.form-select {
+  padding: .375rem 1.5rem .375rem .75rem;
+  background-position: right 0.25rem center;
 }
 
 ::placeholder {
@@ -1004,32 +1093,46 @@ select {
 }
 
 .dropdown-menu {
-  background: var(--bg);
-  border-color: var(--border-mid);
+  --bs-dropdown-font-size: 0.875rem;
+  --bs-dropdown-bg: var(--bg);
+  --bs-dropdown-color: var(--fg-text);
+  --bs-dropdown-border-color: var(--border-mid);
+  --bs-dropdown-link-color: var(--fg-text);
+  --bs-dropdown-link-hover-color: var(--fg-text);
+  --bs-dropdown-link-hover-bg: var(--bg-form);
+  --bs-dropdown-link-active-color: var(--fg-text);
+  --bs-dropdown-link-active-bg: var(--bg-active);
+  --bs-dropdown-divider-bg: var(--border);
+  --bs-dropdown-header-color: var(--fg-muted);
 }
 
-.dropdown-menu > li > a {
-  color: var(--fg-text);
-}
-
-.dropdown-menu > li > a:hover,
-.dropdown-menu > li > a:focus {
-  background: var(--bg-form);
-  color: var(--fg-text);
-}
-
-.dropdown-menu .divider {
-  background: var(--border);
+#sidebar .dropdown-menu {
+  line-height: var(--bs-body-line-height);
 }
 
 pre {
+  padding: 9.5px;
   background: var(--bg-form);
-  border-color: var(--border-mid);
+  border: 1px solid var(--border-mid);
+  border-radius: 4px;
   color: var(--fg-text);
 }
 
-.help-block {
+.form-text {
   color: var(--fg-dim);
+}
+
+.connection-settings form .row {
+  padding-bottom: 1rem;
+}
+
+.connection-settings form .col-form-label {
+  text-align: end;
+  font-weight: bolder;
+}
+
+.connection-bookmarks-group {
+  display: none;
 }
 
 hr {

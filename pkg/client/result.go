@@ -8,6 +8,7 @@ import (
 	"log"
 	"math"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/sosedoff/pgweb/pkg/command"
@@ -43,10 +44,11 @@ type (
 	}
 
 	Result struct {
-		Pagination *Pagination  `json:"pagination,omitempty"`
-		Columns    []string     `json:"columns"`
-		Rows       []Row        `json:"rows"`
-		Stats      *ResultStats `json:"stats,omitempty"`
+		Pagination  *Pagination  `json:"pagination,omitempty"`
+		Columns     []string     `json:"columns"`
+		ColumnTypes []string     `json:"column_types,omitempty"`
+		Rows        []Row        `json:"rows"`
+		Stats       *ResultStats `json:"stats,omitempty"`
 	}
 
 	ResultStats struct {
@@ -74,6 +76,15 @@ type (
 
 // Due to big int number limitations in javascript, numbers should be encoded
 // as strings so they could be properly loaded on the frontend.
+// isBinaryColumn reports whether the value at column idx is bytea. Without
+// column types (results not produced by the driver) the byte heuristic applies.
+func (res *Result) isBinaryColumn(idx int, val string) bool {
+	if res.ColumnTypes == nil {
+		return hasBinary(val, 8)
+	}
+	return idx < len(res.ColumnTypes) && strings.EqualFold(res.ColumnTypes[idx], "BYTEA")
+}
+
 func (res *Result) PostProcess() {
 	for i, row := range res.Rows {
 		for j, col := range row {
@@ -98,7 +109,11 @@ func (res *Result) PostProcess() {
 					res.Rows[i][j] = strconv.FormatFloat(val, 'e', -1, 64)
 				}
 			case string:
-				if hasBinary(val, 8) && BinaryCodec != CodecNone {
+				// bytea columns are encoded by column type, so printable
+				// binary values are encoded as well and text columns with
+				// newlines or non-ASCII characters are left alone. The byte
+				// heuristic only serves results without column type info.
+				if BinaryCodec != CodecNone && res.isBinaryColumn(j, val) {
 					res.Rows[i][j] = encodeBinaryData([]byte(val), BinaryCodec)
 				}
 			case time.Time:

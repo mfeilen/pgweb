@@ -555,6 +555,15 @@ func collectResult(rows *sqlx.Rows, queryStart, queryFinish time.Time) (*Result,
 		Rows:    []Row{},
 	}
 
+	// Column types drive bytea encoding (PostProcess) and the JSON cell
+	// viewer in the frontend.
+	if types, err := rows.ColumnTypes(); err == nil {
+		result.ColumnTypes = make([]string, len(types))
+		for idx, ct := range types {
+			result.ColumnTypes[idx] = ct.DatabaseTypeName()
+		}
+	}
+
 	for rows.Next() {
 		obj, err := rows.SliceScan()
 

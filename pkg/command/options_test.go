@@ -3,6 +3,7 @@ package command
 import (
 	"os"
 	"path/filepath"
+	"regexp"
 	"testing"
 
 	"github.com/mitchellh/go-homedir"
@@ -46,7 +47,22 @@ func TestParseOptions(t *testing.T) {
 			assert.Equal(t, v, opts.Theme)
 		}
 		_, err := ParseOptions([]string{"--theme", "blue"})
-		assert.EqualError(t, err, `invalid theme "blue": expected auto, light or dark`)
+		assert.EqualError(t, err, `invalid theme "blue": expected auto, light, dark or an id from docs/themes.md`)
+	})
+
+	t.Run("theme pack ids", func(t *testing.T) {
+		opts, err := ParseOptions([]string{"--theme", "dracula"})
+		assert.NoError(t, err)
+		assert.Equal(t, "dracula", opts.Theme)
+
+		opts, err = ParseOptions([]string{"--theme", "Dracula"})
+		assert.NoError(t, err)
+		assert.Equal(t, "dracula", opts.Theme, "flag value is case-insensitive like the env var")
+
+		t.Setenv("PGWEB_THEME", "one-dark")
+		opts, err = ParseOptions([]string{})
+		assert.NoError(t, err)
+		assert.Equal(t, "one-dark", opts.Theme)
 	})
 
 	t.Run("theme env", func(t *testing.T) {
@@ -57,7 +73,22 @@ func TestParseOptions(t *testing.T) {
 
 		t.Setenv("PGWEB_THEME", "blue")
 		_, err = ParseOptions([]string{})
-		assert.EqualError(t, err, `invalid PGWEB_THEME value "blue": expected auto, light or dark`)
+		assert.EqualError(t, err, `invalid PGWEB_THEME value "blue": expected auto, light, dark or an id from docs/themes.md`)
+	})
+
+	t.Run("binary codec", func(t *testing.T) {
+		opts, err := ParseOptions([]string{})
+		assert.NoError(t, err)
+		assert.Equal(t, "none", opts.BinaryCodec)
+
+		t.Setenv("PGWEB_BINARY_CODEC", "base64")
+		opts, err = ParseOptions([]string{})
+		assert.NoError(t, err)
+		assert.Equal(t, "base64", opts.BinaryCodec)
+
+		opts, err = ParseOptions([]string{"--binary-codec", "hex"})
+		assert.NoError(t, err)
+		assert.Equal(t, "hex", opts.BinaryCodec, "flag wins over the environment")
 	})
 
 	t.Run("dark mode flag", func(t *testing.T) {
@@ -185,4 +216,30 @@ func TestParseOptions(t *testing.T) {
 		_, err = ParseOptions([]string{"--bookmarks-only", "--connect-backend", "test", "--sessions", "--connect-token", "token", "--url", "127.0.0.2"})
 		assert.EqualError(t, err, "--connect-backend not supported in bookmarks-only mode")
 	})
+}
+
+func TestThemePackIDs(t *testing.T) {
+	assert.NotEmpty(t, themePackIDs)
+
+	seen := map[string]bool{}
+	for _, id := range themePackIDs {
+		assert.Regexp(t, `^[a-z0-9-]+$`, id)
+		assert.NotContains(t, []string{"auto", "light", "dark"}, id)
+		assert.False(t, seen[id], "duplicate id %s", id)
+		seen[id] = true
+		assert.True(t, validTheme(id), id)
+	}
+}
+
+// The generated id list must match the generated frontend list.
+func TestThemePackIDsMatchFrontendList(t *testing.T) {
+	data, err := os.ReadFile("../../static/js/theme-packs.js")
+	assert.NoError(t, err)
+
+	re := regexp.MustCompile(`id: "([a-z0-9-]+)"`)
+	var ids []string
+	for _, m := range re.FindAllStringSubmatch(string(data), -1) {
+		ids = append(ids, m[1])
+	}
+	assert.Equal(t, ids, themePackIDs)
 }

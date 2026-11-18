@@ -74,56 +74,116 @@ function getSessionId() {
   return id;
 }
 
-// Theme handling. A choice is "auto", "dark" or "light". Precedence: the
-// choice stored in this browser, then the server default (features.theme from
-// /api/info), then "auto". "auto" follows the operating system setting and
-// updates live when that setting changes.
-var themeChoices = ["auto", "dark", "light"];
-var themeMedia   = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+// Theme handling. A choice is "auto", "dark", "light" or the id of a theme
+// pack (static/js/theme-packs.js, generated). Precedence: the choice stored
+// in this browser, then the server default (features.theme from /api/info),
+// then "auto". "auto" follows the operating system setting and updates live.
+var themeBuiltins = ["auto", "dark", "light"];
+var themePackList = window.themePacks || [];
+var themeMedia    = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+
+function themePack(id) {
+  for (var i = 0; i < themePackList.length; i++) {
+    if (themePackList[i].id === id) return themePackList[i];
+  }
+  return null;
+}
+
+function themeKnown(choice) {
+  return themeBuiltins.indexOf(choice) >= 0 || themePack(choice) !== null;
+}
 
 function storedTheme() {
   var choice = storageGet("localStorage", "pgweb_theme");
-  return themeChoices.indexOf(choice) >= 0 ? choice : null;
+  return themeKnown(choice) ? choice : null;
 }
 
 function currentThemeChoice() {
   var choice = document.documentElement.getAttribute("data-theme-choice");
-  return themeChoices.indexOf(choice) >= 0 ? choice : "auto";
+  return themeKnown(choice) ? choice : "auto";
 }
 
-// Resolves a choice to the theme actually rendered
+// Resolves a choice to the data-theme value actually rendered
 function resolveTheme(choice) {
   if (choice === "dark" || choice === "light") return choice;
+  if (themePack(choice)) return choice;
   return themeMedia && themeMedia.matches ? "dark" : "light";
 }
 
+function themeTitle(choice) {
+  var pack = themePack(choice);
+  if (pack) return "Theme: " + pack.name;
+  return {
+    auto:  "Theme: auto, follows the system setting",
+    dark:  "Theme: dark",
+    light: "Theme: light"
+  }[choice];
+}
+
 function applyTheme(choice) {
-  var titles = {
-    auto:  "Theme: auto, follows the system setting. Click for dark",
-    dark:  "Theme: dark. Click for light",
-    light: "Theme: light. Click for auto"
-  };
   var icons = { auto: "fa-adjust", dark: "fa-moon-o", light: "fa-sun-o" };
 
   document.documentElement.setAttribute("data-theme-choice", choice);
   document.documentElement.setAttribute("data-theme", resolveTheme(choice));
 
   $(".theme-toggle").
-    attr("title", titles[choice]).
+    attr("title", themeTitle(choice)).
     find("i").
-    attr("class", "fa " + icons[choice]);
+    attr("class", "fa " + (icons[choice] || "fa-paint-brush"));
+
+  $(".theme-menu li, .theme-menu a[data-theme]").removeClass("active");
+  $(".theme-menu a[data-theme]").filter(function() {
+    return $(this).attr("data-theme") === choice;
+  }).addClass("active").parent().addClass("active");
+
+  // Bootstrap's own components follow the effective theme
+  var effective = document.documentElement.getAttribute("data-theme");
+  var pack = themePack(effective);
+  var isDark = effective === "dark" || (pack !== null && pack.dark);
+  document.documentElement.setAttribute("data-bs-theme", isDark ? "dark" : "light");
 }
 
 function initTheme() {
-  var serverDefault = themeChoices.indexOf(appFeatures.theme) >= 0 ? appFeatures.theme : "auto";
+  var serverDefault = themeKnown(appFeatures.theme) ? appFeatures.theme : "auto";
   applyTheme(storedTheme() || serverDefault);
 }
 
-function toggleTheme() {
-  var next = themeChoices[(themeChoices.indexOf(currentThemeChoice()) + 1) % themeChoices.length];
+function chooseTheme(choice) {
+  if (!themeKnown(choice)) return;
+  storageSet("localStorage", "pgweb_theme", choice);
+  applyTheme(choice);
+}
 
-  storageSet("localStorage", "pgweb_theme", next);
-  applyTheme(next);
+// Fills every .theme-menu with the built-in choices and the theme packs,
+// dark packs first, then light packs.
+function buildThemeMenus() {
+  var menu = $("<ul/>");
+
+  function item(id, name) {
+    return $("<li/>").append(
+      $("<a/>", { href: "#", "class": "dropdown-item", "data-theme": id }).
+        append($("<i/>", { "class": "fa fa-check" })).
+        append(document.createTextNode(" " + name))
+    );
+  }
+
+  function group(title, dark) {
+    var packs = $.grep(themePackList, function(p) { return p.dark === dark; });
+    if (!packs.length) return;
+    menu.append($("<li/>").append($("<hr/>", { "class": "dropdown-divider" })));
+    menu.append($("<li/>").append($("<h6/>", { "class": "dropdown-header" }).text(title)));
+    $.each(packs, function(i, p) { menu.append(item(p.id, p.name)); });
+  }
+
+  menu.append(item("auto", "Auto (system)"));
+  menu.append(item("light", "Light"));
+  menu.append(item("dark", "Dark"));
+  group("Dark themes", true);
+  group("Light themes", false);
+
+  $(".theme-menu").each(function() {
+    $(this).empty().append(menu.children().clone());
+  });
 }
 
 if (themeMedia && themeMedia.addEventListener) {
@@ -332,7 +392,7 @@ function loadLocalQueries() {
 
     resp.forEach(function(item) {
       var title = item.title || item.id;
-      $("<li><a href='#' class='load-local-query' data-id='" + item.id + "'>" + title + "</a></li>").appendTo(container);
+      $("<li><a href='#' class='dropdown-item load-local-query' data-id='" + item.id + "'>" + title + "</a></li>").appendTo(container);
     });
 
     if (resp.length > 0) $("#load-local-query").prop("disabled", "");
@@ -414,10 +474,92 @@ function escapeHtml(str) {
   return "<span class='null'>null</span>";
 }
 
-function unescapeHtml(str){
-  var e = document.createElement("div");
-  e.innerHTML = str;
-  return e.childNodes.length === 0 ? "" : e.childNodes[0].nodeValue;
+var jsonFormatStorageKey = "pgweb.json_format";
+var jsonFormat = "pretty";
+try {
+  if (localStorage.getItem(jsonFormatStorageKey) === "raw") jsonFormat = "raw";
+} catch (e) {
+  // Private browsing can disable local storage.
+}
+
+function prettyJson(raw) {
+  // Validate the JSON, then format its original tokens so large numbers retain
+  // their exact digits instead of being rounded by JSON.stringify.
+  JSON.parse(raw);
+  var tokens = raw.match(/"(?:\\.|[^"\\])*"|[{}\[\],:]|true|false|null|-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?/g);
+  var result = "";
+  var depth = 0;
+
+  tokens.forEach(function(token, index) {
+    if (token === "{" || token === "[") {
+      if (tokens[index + 1] === (token === "{" ? "}" : "]")) {
+        result += token;
+      } else {
+        result += token + "\n" + "  ".repeat(++depth);
+      }
+    } else if (token === "}" || token === "]") {
+      if (tokens[index - 1] === (token === "}" ? "{" : "[")) {
+        result += token;
+      } else {
+        result += "\n" + "  ".repeat(--depth) + token;
+      }
+    } else if (token === ",") {
+      result += ",\n" + "  ".repeat(depth);
+    } else if (token === ":") {
+      result += ": ";
+    } else {
+      result += token;
+    }
+  });
+
+  return result;
+}
+
+function highlightJson(element, value) {
+  var tokens = /"(?:\\.|[^"\\])*"|\b(?:true|false|null)\b|-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?|[{}\[\],:]/g;
+  var match;
+  var offset = 0;
+  var fragment = document.createDocumentFragment();
+
+  while ((match = tokens.exec(value)) !== null) {
+    fragment.appendChild(document.createTextNode(value.slice(offset, match.index)));
+    var token = match[0];
+    var kind = "punctuation";
+    if (token.charAt(0) === '"') {
+      kind = /^\s*:/.test(value.slice(tokens.lastIndex)) ? "key" : "string";
+    } else if (token === "true" || token === "false" || token === "null") {
+      kind = "literal";
+    } else if (/^-?\d/.test(token)) {
+      kind = "number";
+    }
+    var span = document.createElement("span");
+    span.className = "json-" + kind;
+    span.textContent = token;
+    fragment.appendChild(span);
+    offset = tokens.lastIndex;
+  }
+  fragment.appendChild(document.createTextNode(value.slice(offset)));
+  element.empty().append(fragment);
+}
+
+function showCellContent(value, isJson) {
+  var modal = $("#content_modal");
+  modal.data("rawValue", value).data("isJson", isJson);
+  modal.find(".json-format").toggle(isJson);
+  modal.find(".json-format button").removeClass("active").attr("aria-pressed", "false")
+    .filter("[data-format='" + jsonFormat + "']").addClass("active").attr("aria-pressed", "true");
+
+  var content = modal.find(".content");
+  if (isJson) {
+    try {
+      highlightJson(content, jsonFormat === "pretty" ? prettyJson(value) : value);
+    } catch (e) {
+      content.text(value);
+    }
+  } else {
+    content.text(value);
+  }
+  modal.show();
 }
 
 function getCurrentObject() {
@@ -675,7 +817,7 @@ function buildTable(results, sortColumn, sortOrder, options) {
 
     // Add row action button
     if (action) {
-      r += "<td><a class='btn btn-xs btn-" + action.style + " row-action' data-action='" + action.name + "' data-value='" + row[action.dataColumn] + "' href='#'>" + action.title + "</a></td>";
+      r += "<td><a class='btn btn-sm btn-" + action.style + " row-action' data-action='" + action.name + "' data-value='" + row[action.dataColumn] + "' href='#'>" + action.title + "</a></td>";
     }
 
     rows += "<tr>" + r + "</tr>";
@@ -691,6 +833,17 @@ function buildTable(results, sortColumn, sortOrder, options) {
       $(this).data("pk", rowKeys[idx]);
     });
   }
+
+  $("#results_body tr").each(function(rowIndex) {
+    $(this).children("td[data-col]").each(function(columnIndex) {
+      var value = results.rows[rowIndex][columnIndex];
+      var type = (results.column_types || [])[columnIndex];
+      $(this).data("rawValue", value);
+      if (value !== null && /^(json|jsonb)$/i.test(type || "")) {
+        $(this).addClass("json-cell");
+      }
+    });
+  });
 
   // Show number of rows rendered on the page
   if (results.stats) {
@@ -1035,7 +1188,7 @@ function showActivityPanel() {
 
 function showQueryProgressMessage() {
   $("#run, #explain-dropdown-toggle, #csv, #json, #xml, #load-local-query").prop("disabled", true);
-  $("#explain-dropdown").removeClass("open");
+  $("#explain-dropdown .dropdown-toggle, #explain-dropdown .dropdown-menu").removeClass("show");
   $("#query_progress").show();
 }
 
@@ -1489,14 +1642,14 @@ function showConnectionSettings() {
         $("<option value='" + key + "''>" + key + "</option>").appendTo("#connection_bookmarks");
       }
 
-      $(".bookmarks").show();
+      $(".connection-bookmarks-group").show();
     }
     else {
       if (appFeatures.bookmarks_only) {
         $("#connection_error").html("Running in <b>bookmarks-only</b> mode but <b>NO</b> bookmarks configured.").show();
         $(".open-connection").hide();
       } else {
-        $(".bookmarks").hide();
+        $(".connection-bookmarks-group").hide();
       }
     }
   });
@@ -1605,12 +1758,11 @@ function bindTableHeaderMenu() {
 
       switch(menuItem.data("action")) {
         case "display_value":
-          var value = $(context).text();
-          $("#content_modal .content").text(value);
-          $("#content_modal").show();
+          var cell = $(context);
+          showCellContent(cell.data("rawValue"), cell.hasClass("json-cell"));
           break;
         case "copy_value":
-          copyToClipboard($(context).text());
+          copyToClipboard($(context).data("rawValue"));
           break;
         case "filter_by_value":
           var colIdx   = $(context).data("col");
@@ -1907,6 +2059,8 @@ function patchRow(tr, row) {
     if (name == null || !(name in row)) return;
 
     $(this).find("> div").html(escapeHtml(row[name]));
+    // The cell viewer and the copy action read the raw value, keep it current
+    $(this).data("rawValue", row[name]);
   });
 
   // The primary key itself may have been updated
@@ -2269,7 +2423,7 @@ function bindContentModalEvents() {
   $("#content_modal .content-modal-action").on("click", function() {
     switch ($(this).data("action")) {
       case "copy":
-        copyToClipboard($("#content_modal pre").text());
+        copyToClipboard($("#content_modal").data("rawValue"));
         break;
       case "close":
         $("#content_modal").hide();
@@ -2277,22 +2431,35 @@ function bindContentModalEvents() {
     }
   });
 
+  $("#content_modal .json-format button").on("click", function() {
+    jsonFormat = $(this).data("format");
+    try {
+      localStorage.setItem(jsonFormatStorageKey, jsonFormat);
+    } catch (e) {
+      // The choice still applies until this page is closed.
+    }
+    showCellContent($("#content_modal").data("rawValue"), true);
+  });
+
   $("#results").on("dblclick", "td > div", function() {
+    var cell = $(this).parent();
+
     // Editable cells enter inline edit mode, everything else opens the viewer
-    if (startCellEdit($(this).parent())) return;
+    if (startCellEdit(cell)) return;
 
-    var value = unescapeHtml($(this).html());
-    if (!value) return;
-
-    $("#content_modal pre").text(value);
-    $("#content_modal").show();
+    var value = cell.data("rawValue");
+    if (value === null || value === undefined || value === "") return;
+    showCellContent(value, cell.hasClass("json-cell"));
   })
 }
 
 $(document).ready(function() {
-  // Sync the toggle icons with the choice the head script already applied;
-  // initTheme() adds the server default once /api/info has answered.
+  // Build the theme menus and sync them with the choice the head script
+  // already applied; initTheme() adds the server default once /api/info has
+  // answered.
+  buildThemeMenus();
   applyTheme(currentThemeChoice());
+  $(".dropdown-menu a").addClass("dropdown-item");
 
   bindInputResizeEvents();
   bindContentModalEvents();
@@ -2412,9 +2579,9 @@ $(document).ready(function() {
     sortTableRows($(this), sortOrder);
   });
 
-  $(".theme-toggle").on("click", function(e) {
+  $(document).on("click", ".theme-menu a[data-theme]", function(e) {
     e.preventDefault();
-    toggleTheme();
+    chooseTheme($(this).attr("data-theme"));
   });
 
   $("#refresh_tables").on("click", function() {
@@ -2703,4 +2870,3 @@ $(document).ready(function() {
     });
   });
 });
-

@@ -1,0 +1,68 @@
+/**
+ * Fixture theme for the converter tests. Dark background given as a
+ * gradient (like synthwave84), tokens with hex, rgb and hsl colours,
+ * a selection rule and an alpha colour that must be composited.
+ */
+code[class*="language-"],
+pre[class*="language-"] {
+	color: #c5c8c6;
+	background: none;
+	text-shadow: 0 1px rgba(0, 0, 0, 0.3);
+}
+
+pre[class*="language-"] {
+	background-image: linear-gradient(to bottom, #1d1f21, #111);
+}
+
+code[class*="language-"]::selection,
+pre[class*="language-"]::selection {
+	background: rgba(255, 255, 255, 0.2);
+	color: inherit;
+}
+
+.token.comment,
+.token.prolog {
+	color: rgb(150, 152, 150);
+}
+
+.token.keyword {
+	color: hsl(276, 25%, 65%);
+}
+
+.token.operator {
+	color: #8abeb7;
+}
+
+.token.number,
+.token.boolean {
+	color: #de935f;
+}
+
+.token.function {
+	color: #81a2be;
+}
+
+.token.class-name {
+	color: #f0c674;
+}
+
+.token.string {
+	color: #b5bd68;
+}
+
+.token.variable {
+	color: #cc6666;
+}
+
+.token.inserted {
+	color: #98c379;
+}
+
+.token.deleted {
+	color: #e06c75;
+}
+
+/* a later rule for the same token wins */
+.token.keyword {
+	color: #b294bb;
+}
