@@ -17,7 +17,7 @@ func TestGetInfo(t *testing.T) {
 
 	previous := command.Opts
 	defer func() { command.Opts = previous }()
-	command.Opts.DarkMode = true
+	command.Opts.Theme = "dark"
 
 	recorder := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(recorder)
@@ -31,6 +31,7 @@ func TestGetInfo(t *testing.T) {
 		Features map[string]interface{} `json:"features"`
 	}
 	assert.NoError(t, json.Unmarshal(recorder.Body.Bytes(), &body))
-	assert.Equal(t, true, body.Features["dark_mode"])
+	assert.Equal(t, "dark", body.Features["theme"])
+	assert.NotContains(t, body.Features, "dark_mode")
 	assert.Equal(t, false, body.Features["session_lock"])
 }

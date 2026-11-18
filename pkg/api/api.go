@@ -607,7 +607,7 @@ func GetInfo(c *gin.Context) {
 			"query_timeout":  command.Opts.QueryTimeout,
 			"local_queries":  QueryStore != nil,
 			"bookmarks_only": command.Opts.BookmarksOnly,
-			"dark_mode":      command.Opts.DarkMode,
+			"theme":          command.Opts.Theme,
 		},
 	})
 }

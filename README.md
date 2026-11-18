@@ -71,23 +71,26 @@ Or set environment variable:
 PGWEB_SESSIONS=1 pgweb
 ```
 
-### Dark mode
+### Theme
 
-pgweb ships a light and a dark theme. To make dark the default, start the server with:
+pgweb ships a light and a dark theme. By default (`auto`) the UI follows the
+operating system setting. To pick a default on the server:
 
 ```
-pgweb --dark-mode
+pgweb --theme dark      # or: light, auto
 ```
 
 Or set environment variable:
 
 ```
-PGWEB_DARK_MODE=true pgweb
+PGWEB_THEME=dark pgweb
 ```
 
-Each user can still switch between light and dark with the moon/sun button in
-the top right corner; the browser remembers that choice and it takes precedence
-over the server default.
+`--dark-mode` and `PGWEB_DARK_MODE=true|false|auto` are shorthands.
+
+Each user can still cycle auto, dark and light with the button in the top
+right corner; the browser remembers that choice and it takes precedence over
+the server default.
 
 ## Testing
 
